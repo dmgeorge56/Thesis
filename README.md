@@ -22,10 +22,6 @@ This repository will contain the following:
   b. Code to get summary stat tables
   c. Summary Statistics include the following:
     i. Variable Name, Variable Definition, Mean/Average, Min, Max
-    ii. Variables to Include:
-       - Deaths
-       - Number of Recipients of Medicaid By State By Year
-       - 
        
  5. Code for Regressions
  
