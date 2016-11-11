@@ -2,10 +2,18 @@
 ####################################################################################################
 #                                      Code to Merge Data                                          #
 ####################################################################################################                                                                                                  #
-# This Branch Includes:                                                                            #
-#      1.                                                             #
-#      2.                                                              #
-#      3.                                                                    #
-#                                                                                                  #
+# This Branch Includes Merging:                                                                    #
+#      1. BRFFS and Enrollment                                                                     #
+#      2. CDC and Enrollment and Recipients/Spending                                               #
+#      3. Unemployment data                                                                        #
+#      4. Other demographic data for controls                                                      #
 #                                                                                                  #
 ####################################################################################################
+
+#      1. BRFFS and Enrollment                                                                     #
+
+#      2. CDC and Enrollment and Recipients/Spending                                               #
+
+#      3. Unemployment data                                                                        #
+
+#      4. Other demographic data for controls                                                      #
