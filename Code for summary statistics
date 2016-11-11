@@ -3,9 +3,12 @@
 #                                      Code for Summary Statistics                                 #
 ####################################################################################################                                                                                                  #
 # This Branch Includes:                                                                            #
-#      1.                                                              #
-#      2.                                                              #
-#      3.                                                                    #
+#      1. Code to get summary stat numbers                                                         #
+#      2. Code to get summary stat tables                                                          #
+#      3. Summary Statistics include the following:                                                #
+#         -Variable Name, Variable Definition, Mean/Average, Min, Max                               #
+#                                                                                                  #
+#                                                                                                  #
 #                                                                                                  #
 #                                                                                                  #
 ####################################################################################################
