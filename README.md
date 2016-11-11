@@ -20,8 +20,7 @@ This repository will contain the following:
  4. Code for Summary Statistics
   a. Code to get summary stat numbers
   b. Code to get summary stat tables
-  c. Summary Statistics include the following:
-    i. Variable Name, Variable Definition, Mean/Average, Min, Max
+  c. Summary Statistics include the following: Variable Name, Variable Definition, Mean/Average, Min, Max
        
  5. Code for Regressions
  
