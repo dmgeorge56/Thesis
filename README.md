@@ -3,16 +3,16 @@
 
 ###This repository will contain the following:
 
-#####Where to find the following data
+####Where to find the following data
     Online link or source name
 
-#####Code to clean the following data:
+####Code to clean the following data:
     BRFFS
     CDC
     Enrollment
     Recipients/Spending
   
-#####Code to merge the following data:
+####Code to merge the following data:
     BRFFS and Enrollment
     CDC and Enrollment and Recipients/Spending
     Unemployment data
