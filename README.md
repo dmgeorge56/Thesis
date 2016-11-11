@@ -1,5 +1,5 @@
 # Thesis
-#Thesis code and other necessary things
+# Thesis code and other necessary things
 
 ###This repository will contain the following:
 
