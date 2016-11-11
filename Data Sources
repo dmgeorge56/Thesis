@@ -12,7 +12,33 @@
 ####################################################################################################
 
 #      1. Data used                                                                                #
+BRFSS
+CDC
+Recipients
+Spending 
+UnEmployment
 
-#      2. Where the data came from, including:                                                     #
+#      2. Where the data came from                                                                 #
+BRFSS - Center For Disease Control and Prevention
+http://www.cdc.gov/brfss/
+1999-2014
+
+CDC - Center For Disease Control and Prevention - WONDER
+https://wonder.cdc.gov/
+1999-2014
+
+Recipients - Social Security Administration
+https://www.ssa.gov/policy/docs/statcomps/supplement/2015/index.html 
+1999- 2016
+
+Spending - Social Security Administration
+https://www.ssa.gov/policy/docs/statcomps/supplement/2015/index.html
+1999-2015
+
+Unemployment - 
+
+Race - 
+
+Income -
 
 #      3. Any other relevant information about data                                                #
