@@ -102,3 +102,237 @@ library(lfe)
 ```{r brfss reg output2 with FE, echo=FALSE}
 
 #stargazer(a3, a4, type="text")
+
+                               ---
+                              title: "Untitled"
+                              author: "Dana George"
+                              date: "November 12, 2016"
+                              output: pdf_document
+                              ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r state level}
+
+# load data
+deathdata <- read.csv("P:\\Thesis\\CDC\\death.data.csv") # - or -
+load("P:\\Thesis\\CDC\\death.data.rdata")
+load("P:\\Thesis\\cdc_enroll.rdata")
+spendingdata <- read.csv("P:\\Thesis\\Medicaid_enrollement_and_paymentsbystate_toR3.csv")
+unemploy <- read.csv("C:\\Users\\H682394\\employdata_toR.csv")
+educadata <- read.csv("C:/Users/H682394/educationdata.csv")
+
+
+# clean data frames
+
+enroll$NA. <- NULL
+enroll$NA..1 <- NULL
+enroll$NA..2 <- NULL
+enroll$NA..3 <- NULL
+
+# rename to be ready to merge
+names(enroll)[names(enroll)=="year"] <- "iyear"
+names(spendingdata)[names(spendingdata)=="year"] <- "iyear"
+
+library(plyr)
+spendingdata2 <- arrange(spendingdata, fips, iyear)
+deathdata2 <- arrange(deathdata, fips, iyear)
+unemploy2 <- arrange(unemploy, fips, iyear)
+educadata <- arrange(educadata, fips, iyear)
+
+names(deathdata2)[names(deathdata2)=="State"] <- "state"
+
+deathdata2$fips <- as.numeric(deathdata2$fips)
+spendingdata2$fips <- as.numeric(spendingdata2$fips)
+enroll$fips <- as.numeric(enroll$fips)
+
+deathdata2$iyear <- as.numeric(deathdata2$iyear)
+spendingdata2$iyear <- as.numeric(spendingdata2$iyear)
+enroll$iyear <- as.numeric(enroll$iyear)
+
+
+```
+
+```{r merge and clean}
+
+### MERGE TO STATE LEVEL - deathdata2, spendingdata2, enroll and unemploy2
+
+statelevel <- merge(spendingdata2, deathdata2, by=c("fips", "iyear", "state"), all=TRUE)
+statelevel2 <- merge(statelevel, enroll, by=c("fips", "iyear", "state"), all=TRUE)
+statelevel2.5 <- merge(statelevel2, educadata, by=c("fips", "iyear"), all=TRUE)
+statelevel3 <- merge(statelevel2.5, unemploy2, by=c("fips", "iyear"), all=TRUE)
+
+# clean
+statelevel3$fips <- as.factor(statelevel3$fips)
+statelevel3$expan <- as.factor(statelevel3$expan)
+statelevel3$iyear <- as.factor(statelevel3$iyear)
+
+statelevel3$numrep_percap <- with(statelevel3, numrecipients/Population)
+statelevel3$Deaths_percap <- with(statelevel3, Deaths/Population)
+
+# create 14_15 variable for POST
+
+statelevel3$y14_15 <- with(statelevel3, ifelse(iyear==2014, 1, ifelse(iyear==2015, 1, ifelse(iyear==2016, 1, 0))))
+
+```
+
+
+```{r statelevel3 reg output 1}
+library(lfe)
+
+# simple regression without controls
+b1 <- lm(Deaths ~ numrecipients, data=statelevel3)
+
+# simple regression with controls
+b2 <- lm(Deaths ~ numrecipients + Population + unemploy, data=statelevel3)
+
+b3 <- felm(Deaths ~ numrecipients + Population + unemploy + G(fips) + G(iyear), data=statelevel3)
+
+```
+
+```{r other regress}
+
+# simple regression without controls
+c1 <- lm(Deaths ~ numrep_percap, data=statelevel3)
+
+# simple regression with controls
+c2 <- lm(Deaths ~ numrep_percap + Population + unemploy, data=statelevel3)
+
+c3 <- felm(Deaths ~ numrep_percap + Population + unemploy + G(fips) + G(iyear), data=statelevel3)
+
+
+
+# simple regression without controls
+d1 <- lm(Deaths ~ expan, data=statelevel3)
+
+# simple regression with controls
+d2 <- lm(Deaths ~ expan + Population + unemploy, data=statelevel3)
+
+d3 <- felm(Deaths ~ expan + Population + unemploy + G(fips) + G(iyear), data=statelevel3)
+
+```
+
+```{r mas regressions}
+
+# simple regression without controls
+e1 <- lm(Deaths ~ numrecipients, data=statelevel3)
+
+# simple regression with controls
+e2 <- lm(Deaths ~ numrecipients + expan + Population + unemploy, data=statelevel3)
+
+e3 <- felm(Deaths ~ numrecipients + expan + Population + unemploy + G(fips) + G(iyear), data=statelevel3)
+
+e4 <- felm(Deaths ~ numrecipients + expan + Population + unemploy + childrenLT15 + LT9thgrade
+           + X9T12nodiploma + HsgradGED + somecoll + associate + master + profdegree
+           + doctorate + G(fips) + G(iyear), data = statelevel3)
+```
+
+```{r regression output}
+
+stargazer(e1, e2, e3, e4, title="Regression Results - State Level", align=TRUE, dep.var.labels=c("Deaths"), covariate.labels=c("Number of Recipients", "Medicaid Expansion"), type="text", omit=c("Population","unemploy","childrenLT15","LT9thgrade","X9T12nodiploma","HsgradGED","somecoll","associate","master","profdegree","doctorate"), no.space=TRUE)
+
+```
+
+Regression Results - State Level
+=============================================================================================================
+                                                       Dependent variable:                                   
+                     ----------------------------------------------------------------------------------------
+                                                              Deaths                                         
+                                             OLS                                         felm                
+                                (1)                       (2)                   (3)                (4)       
+-------------------------------------------------------------------------------------------------------------
+Number of Recipients         0.0002***                 0.00003**             0.0002***          0.0002***    
+                             (0.00000)                 (0.00001)             (0.00002)          (0.00003)
+                             
+Medicaid Expansion                                     269.527***              11.933            12.771      
+                                                        (36.655)              (33.965)          (30.855)
+                                                        
+Constant                     136.749***               -116.380***                                            
+                              (9.396)                   (21.661)                                             
+-------------------------------------------------------------------------------------------------------------
+Observations                    765                       765                   765                612       
+R2                             0.703                     0.777                 0.923              0.948      
+Adjusted R2                    0.703                     0.775                 0.916              0.941      
+Residual Std. Error      213.100 (df = 763)        185.178 (df = 760)    113.483 (df = 697) 99.110 (df = 538)
+F Statistic          1,805.182*** (df = 1; 763) 660.272*** (df = 4; 760)                                     
+=============================================================================================================
+Note:                                                                             *p<0.1; **p<0.05; ***p<0.01
+
+# Therefore
+a 50 person increase in medicaid recipients is associated with 1 death due to opioids.
+
+```{r mas regressions2}
+
+# simple regression without controls
+f1 <- lm(Deaths ~ avgmedicaiddoll, data=statelevel3)
+
+# simple regression with controls
+f2 <- lm(Deaths ~ avgmedicaiddoll + Population + unemploy, data=statelevel3)
+
+f3 <- felm(Deaths ~ avgmedicaiddoll + Population + unemploy + G(fips) + G(iyear), data=statelevel3)
+
+f4 <- felm(Deaths ~ avgmedicaiddoll + Population + unemploy + childrenLT15 + LT9thgrade
+           + X9T12nodiploma + HsgradGED + somecoll + associate + bachelor + master + profdegree
+           + doctorate + G(fips) + G(iyear), data=statelevel3)
+
+```
+
+
+```{r > percentile}
+
+# create variables
+
+quantile(statelevel3$numrep_percap, c(.2, .50, .75), na.rm=TRUE) 
+
+statelevel3$GT75_numrep_percap <- with(statelevel3, ifelse(numrep_percap >= .21, 1, 0))
+statelevel3$GT50_numrep_percap <- with(statelevel3, ifelse(numrep_percap >= .17, 1, 0))
+statelevel3$GT20_numrep_percap <- with(statelevel3, ifelse(numrep_percap >= .13, 1, 0))
+
+
+statelevel3$GT75_numrep_percap <- as.factor(statelevel3$GT75_numrep_percap)
+
+statelevel3$GT50_numrep_percap <- as.factor(statelevel3$GT50_numrep_percap)
+
+statelevel3$GT20_numrep_percap <- as.factor(statelevel3$GT20_numrep_percap)
+
+
+```
+
+# statelevel3$numrep_percap
+
+      20%       50%       75% 
+0.1320792 0.1775162 0.2199526 
+
+```{r percentile regressions w/o FEs}
+
+# simple regression without controls
+f1 <- lm(Deaths ~ GT75_numrep_percap, data=statelevel3)
+
+# simple regression with controls
+f2 <- lm(Deaths ~ GT75_numrep_percap + Population + unemploy, data=statelevel3)
+
+f3 <- lm(Deaths ~ GT75_numrep_percap + Population + unemploy + fips + iyear, data=statelevel3)
+
+
+# simple regression without controls
+g1 <- lm(Deaths ~ GT50_numrep_percap, data=statelevel3)
+
+# simple regression with controls
+g2 <- lm(Deaths ~ GT50_numrep_percap + Population + unemploy, data=statelevel3)
+
+g3 <- lm(Deaths ~ GT50_numrep_percap + Population + unemploy + fips + iyear, data=statelevel3)
+
+
+
+# simple regression without controls
+h1 <- lm(Deaths ~ GT20_numrep_percap, data=statelevel3)
+
+# simple regression with controls
+h2 <- lm(Deaths ~ GT20_numrep_percap + Population + unemploy, data=statelevel3)
+
+h3 <- lm(Deaths ~ GT20_numrep_percap + Population + unemploy + fips + iyear, data=statelevel3)
+
+```
+
