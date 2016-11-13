@@ -1,1 +1,104 @@
 
+---
+title: "Thesis"
+author: "Dana George"
+date: "November 12, 2016"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r brfss}
+
+# load data
+
+load("P:\\Thesis\\loaded.dum_BRFSS_WITH_DUMMYS")
+load("P:\\Thesis\\cdc_enroll.rdata")
+
+
+# rename to be ready to merge
+
+names(loaded.dum)[names(loaded.dum)=="x.state"] <- "fips"
+names(enroll)[names(enroll)=="year"] <- "iyear"
+names(enroll)[names(enroll)=="state"] <- "x.state"
+
+
+# merge dataframes
+
+brfssANDenroll <- merge(loaded.dum, enroll, by=c("fips", "iyear"), all=TRUE)
+save(brfssANDenroll, file="P:\\Thesis\\brfssANDenroll.rdata")
+
+load("P:\\Thesis\\brfssANDenroll.rdata")
+
+brfssANDenroll <- as.data.frame(brfssANDenroll)
+
+
+# clean
+
+brfssANDenroll$hlthplan <- with(brfssANDenroll, ifelse(hlthplan==1, 1, ifelse(hlthplan==2, 0, NA)))
+
+brfssANDenroll$expanf <- as.factor(brfssANDenroll$expan)
+
+# relevel expanf so felm reads 0 as base level
+brfssANDenroll$expanf <- with(brfssANDenroll, ifelse(expanf==1, 0,
+                                              ifelse(expanf==0, 1, NA)))
+
+
+# simple regression without controls
+a1 <- lm(hlthplan ~ factor(expanf), data=brfssANDenroll)
+
+# simple regression with controls
+a2 <- lm(hlthplan ~ factor(expanf) + sex + nummen + numwomen + orace2 + educa + income2 + marital + employ + veteran + Agecat, data=brfssANDenroll)
+
+```
+
+```{r brfss reg output1, echo = FALSE}
+
+stargazer(a1, a2, title="OLS Regression Results", align=TRUE, dep.var.labels=c("Health Plan"), covariate.labels=c("Medicaid Expansion"), type="html", omit=c("sex","nummen","numwomen","orace2asian/p_islander","orace2black","orace2other","orace2white","educaelem","educahsgrad","educanoeduca/kinder","educasomecoll/tech","educasomehs","income210-14.9","income215-19.9","income220-24.9","income224-34.9","income235-49.9","income250-74.9","income275+","maritalmarried","maritalnevermarried","maritalseparated","maritalunmarriedcouple","maritalwidowed","employhomemaker","employnowork<1yr","employnowork>1yr","employretired","employselfemployed","employstudent","employunabletowork","Agecat25-29","Agecat30-34","Agecat35-39","Agecat40-44","Agecat45-49","Agecat50-54","Agecat55-59","Agecat60-64","Agecat65-69","Agecat70-74","Agecat75-79","Agecat80+", no.space=TRUE))
+
+```
+---
+OLS Regression Results
+=================================================================================
+                                         Dependent variable:                     
+                    -------------------------------------------------------------
+                                             Health Plan                         
+                            (w/o controls)                  (w/ controls)              
+---------------------------------------------------------------------------------
+Medicaid Expansion             0.050***                       0.021***           
+                               (0.001)                        (0.001)            
+                                                                                 
+Constant                       0.885***                       0.734***           
+                               (0.0001)                       (0.003)            
+                                                                                 
+---------------------------------------------------------------------------------
+Observations                  5,624,170                       859,260            
+R2                              0.001                          0.157             
+Adjusted R2                     0.001                          0.157             
+Residual Std. Error      0.317 (df = 5624168)           0.264 (df = 859215)      
+F Statistic         5,516.453*** (df = 1; 5624168) 3,632.581*** (df = 44; 859215)
+=================================================================================
+Note:                                                 *p<0.1; **p<0.05; ***p<0.01
+
+```{r bfss reg output2 with FE}
+
+# regression with fixed effects
+# load needed package
+library(lfe)
+
+# make FE variables factor variables
+#brfssANDenroll$iyear <- as.factor(brfssANDenroll$iyear)
+
+# fixed effects regression without controls
+#a3 <- felm(hlthplan ~ factor(expanf) + G(x.state) + G(iyear), data=brfssANDenroll)
+
+# fixed effects regression with controls
+
+#a4 <- with(brfssANDenroll, felm(hlthplan ~ factor(expanf) + G(x.state) + G(iyear) + sex + nummen + numwomen + orace2 + educa + income2 + marital + employ + veteran + Agecat, data=brfssANDenroll))
+
+```
+
+```{r brfss reg output2 with FE, echo=FALSE}
+
+#stargazer(a3, a4, type="text")
