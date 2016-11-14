@@ -1,8 +1,8 @@
 
 ---
-title: "Thesis"
+title: "Thesis: Regression Code and Raw Output"
 author: "Dana George"
-date: "November 12, 2016"
+date: "November 13, 2016"
 output: html_document
 ---
 ```{r setup, include=FALSE}
@@ -17,11 +17,13 @@ load("P:\\Thesis\\loaded.dum_BRFSS_WITH_DUMMYS")
 load("P:\\Thesis\\cdc_enroll.rdata")
 
 
+
 # rename to be ready to merge
 
 names(loaded.dum)[names(loaded.dum)=="x.state"] <- "fips"
 names(enroll)[names(enroll)=="year"] <- "iyear"
 names(enroll)[names(enroll)=="state"] <- "x.state"
+
 
 
 # merge dataframes
@@ -32,6 +34,7 @@ save(brfssANDenroll, file="P:\\Thesis\\brfssANDenroll.rdata")
 load("P:\\Thesis\\brfssANDenroll.rdata")
 
 brfssANDenroll <- as.data.frame(brfssANDenroll)
+
 
 
 # clean
@@ -45,6 +48,7 @@ brfssANDenroll$expanf <- with(brfssANDenroll, ifelse(expanf==1, 0,
                                               ifelse(expanf==0, 1, NA)))
 
 
+
 # simple regression without controls
 a1 <- lm(hlthplan ~ factor(expanf), data=brfssANDenroll)
 
@@ -52,6 +56,7 @@ a1 <- lm(hlthplan ~ factor(expanf), data=brfssANDenroll)
 a2 <- lm(hlthplan ~ factor(expanf) + sex + nummen + numwomen + orace2 + educa + income2 + marital + employ + veteran + Agecat, data=brfssANDenroll)
 
 ```
+
 
 ```{r brfss reg output1, echo = FALSE}
 
@@ -81,23 +86,31 @@ F Statistic         5,516.453*** (df = 1; 5624168) 3,632.581*** (df = 44; 859215
 =================================================================================
 Note:                                                 *p<0.1; **p<0.05; ***p<0.01
 
+
+
+
 ```{r bfss reg output2 with FE}
 
 # regression with fixed effects
 # load needed package
 library(lfe)
 
+
 # make FE variables factor variables
 #brfssANDenroll$iyear <- as.factor(brfssANDenroll$iyear)
 
+
 # fixed effects regression without controls
 #a3 <- felm(hlthplan ~ factor(expanf) + G(x.state) + G(iyear), data=brfssANDenroll)
+
 
 # fixed effects regression with controls
 
 #a4 <- with(brfssANDenroll, felm(hlthplan ~ factor(expanf) + G(x.state) + G(iyear) + sex + nummen + numwomen + orace2 + educa + income2 + marital + employ + veteran + Agecat, data=brfssANDenroll))
 
 ```
+
+
 
 ```{r brfss reg output2 with FE, echo=FALSE}
 
@@ -110,9 +123,13 @@ library(lfe)
                               output: pdf_document
                               ---
 
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+
 
 ```{r state level}
 
@@ -125,6 +142,8 @@ unemploy <- read.csv("C:\\Users\\H682394\\employdata_toR.csv")
 educadata <- read.csv("C:/Users/H682394/educationdata.csv")
 
 
+
+
 # clean data frames
 
 enroll$NA. <- NULL
@@ -132,9 +151,12 @@ enroll$NA..1 <- NULL
 enroll$NA..2 <- NULL
 enroll$NA..3 <- NULL
 
+
+
 # rename to be ready to merge
 names(enroll)[names(enroll)=="year"] <- "iyear"
 names(spendingdata)[names(spendingdata)=="year"] <- "iyear"
+
 
 library(plyr)
 spendingdata2 <- arrange(spendingdata, fips, iyear)
@@ -154,6 +176,8 @@ enroll$iyear <- as.numeric(enroll$iyear)
 
 
 ```
+
+
 
 ```{r merge and clean}
 
@@ -177,6 +201,9 @@ statelevel3$Deaths_percap <- with(statelevel3, Deaths/Population)
 statelevel3$y14_15 <- with(statelevel3, ifelse(iyear==2014, 1, ifelse(iyear==2015, 1, ifelse(iyear==2016, 1, 0))))
 
 ```
+
+
+
 
 
 ```{r statelevel3 reg output 1}
@@ -204,6 +231,7 @@ c3 <- felm(Deaths ~ numrep_percap + Population + unemploy + G(fips) + G(iyear), 
 
 
 
+
 # simple regression without controls
 d1 <- lm(Deaths ~ expan, data=statelevel3)
 
@@ -213,6 +241,8 @@ d2 <- lm(Deaths ~ expan + Population + unemploy, data=statelevel3)
 d3 <- felm(Deaths ~ expan + Population + unemploy + G(fips) + G(iyear), data=statelevel3)
 
 ```
+
+
 
 ```{r mas regressions}
 
@@ -228,6 +258,9 @@ e4 <- felm(Deaths ~ numrecipients + expan + Population + unemploy + childrenLT15
            + X9T12nodiploma + HsgradGED + somecoll + associate + master + profdegree
            + doctorate + G(fips) + G(iyear), data = statelevel3)
 ```
+
+
+
 
 ```{r regression output}
 
@@ -263,6 +296,10 @@ Note:                                                                           
 # Therefore
 a 50 person increase in medicaid recipients is associated with 1 death due to opioids.
 
+
+
+
+
 ```{r mas regressions2}
 
 # simple regression without controls
@@ -278,6 +315,9 @@ f4 <- felm(Deaths ~ avgmedicaiddoll + Population + unemploy + childrenLT15 + LT9
            + doctorate + G(fips) + G(iyear), data=statelevel3)
 
 ```
+
+
+
 
 
 ```{r > percentile}
@@ -299,6 +339,9 @@ statelevel3$GT20_numrep_percap <- as.factor(statelevel3$GT20_numrep_percap)
 
 
 ```
+
+
+
 
 # statelevel3$numrep_percap
 
@@ -323,6 +366,9 @@ g1 <- lm(Deaths ~ GT50_numrep_percap, data=statelevel3)
 g2 <- lm(Deaths ~ GT50_numrep_percap + Population + unemploy, data=statelevel3)
 
 g3 <- lm(Deaths ~ GT50_numrep_percap + Population + unemploy + fips + iyear, data=statelevel3)
+
+
+
 
 
 
