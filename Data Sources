@@ -17,9 +17,10 @@ CDC
 Expansion
 Recipients
 Spending 
-UnEmployment
+Unemployment
 Race
 Income
+Age
 
 #      2. Where the data came from                                                                 #
 BRFSS - Center For Disease Control and Prevention
@@ -40,10 +41,19 @@ Spending - Social Security Administration
 https://www.ssa.gov/policy/docs/statcomps/supplement/2015/index.html
 1999-2015
 
-Unemployment - 
+Unemployment - U.S. Bureau of Labor Statistics
+http://www.bls.gov/
 
-Race - 
+Education - United States Census, Current Population Survey
+https://www.census.gov/en.html
 
-Income -
+Race - United States Census, Current Population Survey
+https://www.census.gov/en.html
+
+Age - United States Census, Current Population Survey
+https://www.census.gov/en.html
+
+Income - United States Census, Current Population Survey
+https://www.census.gov/en.html
 
 #      3. Any other relevant information about data                                                #
