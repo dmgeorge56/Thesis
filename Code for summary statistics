@@ -14,7 +14,7 @@
 ####################################################################################################
 
 ---
-title: "Summary Statistics"
+title: "SumStatsThesis"
 author: "Dana George"
 date: "November 15, 2016"
 output: html_document
@@ -24,45 +24,41 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
-
-### calculate 75th percentiles for recipent mean and death mean
-
-quantile(deathsvarandmeans$recipient.mean, c(.2, .50, .75), na.rm=TRUE)
-   
-quantile(deathsvarandmeans$death.mean, c(.2, .50, .75), na.rm=TRUE)
-
-```
-
-### results
-
-recipient percentiles
-     20%       50%       75% 
- 219593.1  744770.7 1287003.1 
-
-death percentiles
-     20%       50%       75% 
- 191.0625 243.7500 291.4375 
-
-
 ```{r means and variance}
+
+statelevel3$Deathsnum <- as.numeric(as.character(statelevel3$Deaths))
 
 deathsvarandmeans <- ddply(statelevel3,.(state), summarise, death.mean = round(mean(Deathsnum, na.rm=T)), death.var = round(var(Deathsnum, na.rm=T)), recipient.mean = round(mean(numrecipients, na.rm=T)), recipient.var = round(var(numrecipients, na.rm=T)))
 
-###calculate variable = greater than 75th percentile MEAN
+```
+
+```{r 75 percentile}
+
+#calculate variable = greater than 75th percentile MEAN
 quantile(deathsvarandmeans$recipient.mean, c(.2, .50, .75), na.rm=TRUE) 
 
-deathsvarandmeans$GT75mean.recip <- with(deathsvarandmeans, ifelse(recipient.mean >= 1287003.1, 1, 0))
+quantile(deathsvarandmeans$death.mean, c(.2, .50, .75), na.rm=TRUE)
 
-deathsvarandmeans$GT75mean.deaths <- with(deathsvarandmeans, ifelse(death.mean >= 291.4, 1, 0))
+deathsvarandmeans$GT75mean.recip <- with(deathsvarandmeans, ifelse(recipient.mean >= 1287004, 1, 0))
 
-### true/false if state is above 75th percentile for both mean number of recipients and mean deaths
+deathsvarandmeans$GT75mean.deaths <- with(deathsvarandmeans, ifelse(death.mean >= 461.5, 1, 0))
+
+# true/false if state is above 75th percentile for both mean number of recipients and mean deaths
 
 deathsvarandmeans$outlier <- with(deathsvarandmeans, ifelse(GT75mean.recip == 1 & GT75mean.deaths == 1, "TRUE", "0"))
 
 ```
 
-### Code to print table
+
+# percentiles
+
+quantile(deathsvarandmeans$recipient.mean, c(.2, .50, .75), na.rm=TRUE)
+    20%     50%     75% 
+ 219593  744771 1287004 
+quantile(deathsvarandmeans$death.mean, c(.2, .50, .75), na.rm=TRUE)
+  20%   50%   75% 
+ 67.0 308.0 461.5 
+
 
 ```{r stargazer}
 
@@ -70,62 +66,62 @@ stargazer(deathsvarandmeans,  summary=FALSE, type = "text", rownames=F, title = 
 
 ```
 
-### State Descriptive Statistics Results
+# State Descriptive Statistics
 
 State Descriptive Statistics 1999-2016
 =================================================================================================================
 state                death.mean death.var recipient.mean   recipient.var   GT75mean.recip GT75mean.deaths outlier
 -----------------------------------------------------------------------------------------------------------------
-Alabama                 234      22,512      817,664      17,460,541,424         0               0           0   
-Alaska                  287      33,452      120,398        429,203,317          0               0           0   
-Arizona                 292       6,990     1,293,717     215,351,071,088        1               1         TRUE  
-Arkansas                162      18,441      744,771      25,127,243,947         0               0           0   
-California              119       6,229     10,324,493   2,847,281,422,690       1               0           0   
-Colorado                210       5,127      685,166      91,868,241,883         0               0           0   
-Connecticut             149       5,097      582,554      18,222,195,149         0               0           0   
-Delaware                244      23,324      185,686       2,364,561,892         0               0           0   
-District of Columbia    280       9,586      191,874       1,866,820,716         0               0           0   
-Florida                 115      18,104     3,140,636     373,694,435,105        1               0           0   
-Georgia                 267      13,415     1,771,577     86,276,344,485         1               0           0   
-Hawaii                  365       7,026      251,119       3,094,194,133         0               1           0   
-Idaho                   368       7,520      219,593       2,907,110,022         0               1           0   
-Illinois                346      26,957     2,378,842     402,215,698,838        1               1         TRUE  
-Indiana                 232      13,515     1,052,587     65,382,227,704         0               0           0   
-Iowa                    154      16,712      459,670      11,225,068,512         0               0           0   
-Kansas                  136      21,654      348,772       2,859,266,088         0               0           0   
-Kentucky                291      17,572      927,930      23,376,793,897         0               0           0   
-Louisiana               138      14,824     1,083,919     37,613,107,231         0               0           0   
-Maine                   192      42,090      284,266       2,754,487,442         0               0           0   
-Maryland                365       2,388      868,027      46,860,945,909         0               1           0   
-Massachusetts           340      12,235     1,315,233     84,322,966,317         1               1         TRUE  
-Michigan                291      23,962     1,899,739     138,624,631,798        1               0           0   
-Minnesota               164      14,088      820,712      47,493,188,188         0               0           0   
-Mississippi             194      33,761      716,211      12,506,277,905         0               0           0   
-Missouri                249      18,596     1,024,294     18,175,966,726         0               0           0   
-Montana                 299      16,743      129,750       1,294,461,259         0               1           0   
-Nebraska                272      15,198      251,594        640,621,904          0               0           0   
-Nevada                  241       5,859      309,763      21,664,511,427         0               0           0   
-New Hampshire           207      35,236      134,047        856,798,879          0               0           0   
-New Jersey              296       5,590     1,191,625     113,137,329,459        0               1           0   
-New Mexico              163       2,531      548,594      18,168,076,449         0               0           0   
-New York                190      29,066     4,968,723    1,224,951,143,322       1               0           0   
-North Carolina          376      14,832     1,668,015     102,827,179,269        1               1         TRUE  
-North Dakota            243      44,656       77,078        92,177,370           0               0           0   
-Ohio                    247      23,691     2,137,639     313,746,161,939        1               0           0   
-Oklahoma                260      13,703      734,750      33,418,115,335         0               0           0   
-Oregon                  201       2,371      667,360      37,793,260,749         0               0           0   
-Pennsylvania            313      15,245     2,114,454     178,097,120,462        1               1         TRUE  
-Rhode Island            191      34,754      214,168       1,220,258,285         0               0           0   
-South Carolina          250      23,199      875,362      16,299,373,992         0               0           0   
-South Dakota            195      19,566      123,460        272,450,630          0               0           0   
-Tennessee               306      21,328     1,575,151     12,069,803,737         1               1         TRUE  
-Texas                   217      43,000     4,016,829    1,066,304,895,734       1               0           0   
-Utah                    207       5,630      294,110       4,803,854,079         0               0           0   
-Vermont                 310       8,271      162,567        424,669,168          0               1           0   
-Virginia                288       6,780      846,246      24,829,296,062         0               0           0   
-Washington              368       5,972     1,280,290     71,568,186,228         0               1           0   
-West Virginia           228      11,194      404,746       4,912,660,565         0               0           0   
-Wisconsin               238      15,049     1,038,786     118,642,554,259        0               0           0   
-Wyoming                 250      29,471       65,943        105,494,820          0               0           0   
+Alabama                 136       5,158      817,664      17,460,541,424         0               0           0   
+Alaska                   48       1,027      120,398        429,203,317          0               0           0   
+Arizona                 456      19,486     1,293,717     215,351,071,088        1               0           0   
+Arkansas                136       4,226      744,771      25,127,243,947         0               0           0   
+California             1,690     169,712    10,324,493   2,847,281,422,690       1               1         TRUE  
+Colorado                322      11,762      685,166      91,868,241,883         0               0           0   
+Connecticut             235      10,774      582,554      18,222,195,149         0               0           0   
+Delaware                 68       1,184      185,686       2,364,561,892         0               0           0   
+District of Columbia     44        227       191,874       1,866,820,716         0               0           0   
+Florida                1,245     143,416    3,140,636     373,694,435,105        1               1         TRUE  
+Georgia                 378      32,547     1,771,577     86,276,344,485         1               0           0   
+Hawaii                   60        252       251,119       3,094,194,133         0               0           0   
+Idaho                    61        290       219,593       2,907,110,022         0               0           0   
+Illinois                817      60,832     2,378,842     402,215,698,838        1               1         TRUE  
+Indiana                 235      19,980     1,052,587     65,382,227,704         0               0           0   
+Iowa                    105       4,138      459,670      11,225,068,512         0               0           0   
+Kansas                  112       2,602      348,772       2,859,266,088         0               0           0   
+Kentucky                393      56,587      927,930      23,376,793,897         0               0           0   
+Louisiana               151       4,717     1,083,919     37,613,107,231         0               0           0   
+Maine                    99       1,163      284,266       2,754,487,442         0               0           0   
+Maryland                588      13,524      868,027      46,860,945,909         0               1           0   
+Massachusetts           620      40,810     1,315,233     84,322,966,317         1               1         TRUE  
+Michigan                547      78,549     1,899,739     138,624,631,798        1               1         TRUE  
+Minnesota               197       7,901      820,712      47,493,188,188         0               0           0   
+Mississippi              67       1,536      716,211      12,506,277,905         0               0           0   
+Missouri                404      40,900     1,024,294     18,175,966,726         0               0           0   
+Montana                  49        483       129,750       1,294,461,259         0               0           0   
+Nebraska                 40        293       251,594        640,621,904          0               0           0   
+Nevada                  372      13,940      309,763      21,664,511,427         0               0           0   
+New Hampshire           116       3,970      134,047        856,798,879          0               0           0   
+New Jersey              435      27,586     1,191,625     113,137,329,459        0               0           0   
+New Mexico              250       5,310      548,594      18,168,076,449         0               0           0   
+New York               1,010     194,323    4,968,723    1,224,951,143,322       1               1         TRUE  
+North Carolina          651      58,747     1,668,015     102,827,179,269        1               1         TRUE  
+North Dakota             18        71         77,078        92,177,370           0               0           0   
+Ohio                    851      315,090    2,137,639     313,746,161,939        1               1         TRUE  
+Oklahoma                370      27,243      734,750      33,418,115,335         0               0           0   
+Oregon                  308       5,335      667,360      37,793,260,749         0               0           0   
+Pennsylvania            582      58,191     2,114,454     178,097,120,462        1               1         TRUE  
+Rhode Island            115       2,091      214,168       1,220,258,285         0               0           0   
+South Carolina          198      13,584      875,362      16,299,373,992         0               0           0   
+South Dakota             25        84        123,460        272,450,630          0               0           0   
+Tennessee               467      62,207     1,575,151     12,069,803,737         1               1         TRUE  
+Texas                   941      74,515     4,016,829    1,066,304,895,734       1               1         TRUE  
+Utah                    323      11,147      294,110       4,803,854,079         0               0           0   
+Vermont                  49        235       162,567        424,669,168          0               0           0   
+Virginia                451      20,983      846,246      24,829,296,062         0               0           0   
+Washington              596      19,288     1,280,290     71,568,186,228         0               1           0   
+West Virginia           311      34,588      404,746       4,912,660,565         0               0           0   
+Wisconsin               338      29,091     1,038,786     118,642,554,259        0               0           0   
+Wyoming                  33        326        65,943        105,494,820          0               0           0   
                                                                                                                  
 -----------------------------------------------------------------------------------------------------------------
