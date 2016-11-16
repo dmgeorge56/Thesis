@@ -125,3 +125,316 @@ Wisconsin               338      29,091     1,038,786     118,642,554,259       
 Wyoming                  33        326        65,943        105,494,820          0               0           0   
                                                                                                                  
 -----------------------------------------------------------------------------------------------------------------
+
+---
+title: "SumStatsThesis"
+author: "Dana George"
+date: "November 15, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load data}
+
+# load data
+
+load("P:\\Thesis\\statelevel3.rdata")
+
+```
+
+```{r create mean and variance table}
+
+deathsvarandmeans <- ddply(statelevel3,.(state), summarise, death.mean = round(mean(Deathsnum, na.rm=T)), death.var = round(var(Deathsnum, na.rm=T)), recipient.mean = round(mean(numrecipients, na.rm=T)), recipient.var = round(var(numrecipients, na.rm=T)))
+
+```
+
+
+```{r 75 percentile - means}
+
+#calculate variable = greater than 75th percentile MEAN
+quantile(deathsvarandmeans$recipient.mean, c(.2, .50, .75), na.rm=TRUE) 
+
+quantile(deathsvarandmeans$death.mean, c(.2, .50, .75), na.rm=TRUE)
+
+deathsvarandmeans$GT75mean.recip <- with(deathsvarandmeans, ifelse(recipient.mean >= 1287004, 1, 0))
+
+deathsvarandmeans$GT75mean.deaths <- with(deathsvarandmeans, ifelse(death.mean >= 461.5, 1, 0))
+
+# true/false if state is above 75th percentile for both mean number of recipients and mean deaths
+
+deathsvarandmeans$outlier <- with(deathsvarandmeans, ifelse(GT75mean.recip == 1 & GT75mean.deaths == 1, "TRUE", "0"))
+
+```
+
+# percentiles
+
+quantile(deathsvarandmeans$recipient.mean, c(.2, .50, .75), na.rm=TRUE)
+    20%     50%     75% 
+ 219593  744771 1287004 
+ 
+quantile(deathsvarandmeans$death.mean, c(.2, .50, .75), na.rm=TRUE)
+  20%   50%   75% 
+ 67.0 308.0 461.5 
+
+```{r stargazer}
+
+stargazer(deathsvarandmeans,  summary=FALSE, type = "text", rownames=F, title = "State Descriptive Statistics 1999-2016")
+
+```
+
+# State Descriptive Statistics
+
+State Descriptive Statistics 1999-2016
+=================================================================================================================
+state                death.mean death.var recipient.mean   recipient.var   GT75mean.recip GT75mean.deaths outlier
+-----------------------------------------------------------------------------------------------------------------
+Alabama                 136       5,158      817,664      17,460,541,424         0               0           0   
+Alaska                   48       1,027      120,398        429,203,317          0               0           0   
+Arizona                 456      19,486     1,293,717     215,351,071,088        1               0           0   
+Arkansas                136       4,226      744,771      25,127,243,947         0               0           0   
+California             1,690     169,712    10,324,493   2,847,281,422,690       1               1         TRUE  
+Colorado                322      11,762      685,166      91,868,241,883         0               0           0   
+Connecticut             235      10,774      582,554      18,222,195,149         0               0           0   
+Delaware                 68       1,184      185,686       2,364,561,892         0               0           0   
+District of Columbia     44        227       191,874       1,866,820,716         0               0           0   
+Florida                1,245     143,416    3,140,636     373,694,435,105        1               1         TRUE  
+Georgia                 378      32,547     1,771,577     86,276,344,485         1               0           0   
+Hawaii                   60        252       251,119       3,094,194,133         0               0           0   
+Idaho                    61        290       219,593       2,907,110,022         0               0           0   
+Illinois                817      60,832     2,378,842     402,215,698,838        1               1         TRUE  
+Indiana                 235      19,980     1,052,587     65,382,227,704         0               0           0   
+Iowa                    105       4,138      459,670      11,225,068,512         0               0           0   
+Kansas                  112       2,602      348,772       2,859,266,088         0               0           0   
+Kentucky                393      56,587      927,930      23,376,793,897         0               0           0   
+Louisiana               151       4,717     1,083,919     37,613,107,231         0               0           0   
+Maine                    99       1,163      284,266       2,754,487,442         0               0           0   
+Maryland                588      13,524      868,027      46,860,945,909         0               1           0   
+Massachusetts           620      40,810     1,315,233     84,322,966,317         1               1         TRUE  
+Michigan                547      78,549     1,899,739     138,624,631,798        1               1         TRUE  
+Minnesota               197       7,901      820,712      47,493,188,188         0               0           0   
+Mississippi              67       1,536      716,211      12,506,277,905         0               0           0   
+Missouri                404      40,900     1,024,294     18,175,966,726         0               0           0   
+Montana                  49        483       129,750       1,294,461,259         0               0           0   
+Nebraska                 40        293       251,594        640,621,904          0               0           0   
+Nevada                  372      13,940      309,763      21,664,511,427         0               0           0   
+New Hampshire           116       3,970      134,047        856,798,879          0               0           0   
+New Jersey              435      27,586     1,191,625     113,137,329,459        0               0           0   
+New Mexico              250       5,310      548,594      18,168,076,449         0               0           0   
+New York               1,010     194,323    4,968,723    1,224,951,143,322       1               1         TRUE  
+North Carolina          651      58,747     1,668,015     102,827,179,269        1               1         TRUE  
+North Dakota             18        71         77,078        92,177,370           0               0           0   
+Ohio                    851      315,090    2,137,639     313,746,161,939        1               1         TRUE  
+Oklahoma                370      27,243      734,750      33,418,115,335         0               0           0   
+Oregon                  308       5,335      667,360      37,793,260,749         0               0           0   
+Pennsylvania            582      58,191     2,114,454     178,097,120,462        1               1         TRUE  
+Rhode Island            115       2,091      214,168       1,220,258,285         0               0           0   
+South Carolina          198      13,584      875,362      16,299,373,992         0               0           0   
+South Dakota             25        84        123,460        272,450,630          0               0           0   
+Tennessee               467      62,207     1,575,151     12,069,803,737         1               1         TRUE  
+Texas                   941      74,515     4,016,829    1,066,304,895,734       1               1         TRUE  
+Utah                    323      11,147      294,110       4,803,854,079         0               0           0   
+Vermont                  49        235       162,567        424,669,168          0               0           0   
+Virginia                451      20,983      846,246      24,829,296,062         0               0           0   
+Washington              596      19,288     1,280,290     71,568,186,228         0               1           0   
+West Virginia           311      34,588      404,746       4,912,660,565         0               0           0   
+Wisconsin               338      29,091     1,038,786     118,642,554,259        0               0           0   
+Wyoming                  33        326        65,943        105,494,820          0               0           0   
+                                                                                                                 
+-----------------------------------------------------------------------------------------------------------------
+> 
+
+
+```{r subset to expan states vs non expan states}
+
+statelevel3$fipsnum <- as.numeric(as.character(statelevel3$fips))
+
+expanstates <- with(statelevel3, statelevel3[ which(fips == 2|fips == 4|fips == 5|fips == 6|fips == 8|fips == 9|fips == 10|fips == 11|fips == 15|fips == 17|fips == 18|fips == 19|fips == 21|fips == 22|fips == 24|fips == 25|fips == 26|fips == 27|fips == 30|fips == 32|fips == 33|fips == 34|fips == 35|fips == 36|fips == 38|fips == 39|fips == 41|fips == 42|fips == 44|fips == 50|fips == 53|fips == 54), ])
+
+expanstates <- as.data.frame(expanstates)
+
+nonexpanstates <- with(statelevel3, statelevel3[ which(fips == 1|fips ==12|fips ==13|fips ==16|fips ==20|fips ==23|fips ==28|fips ==29|fips ==31|fips ==37|fips ==40|fips ==45|fips ==46|fips ==47|fips ==48|fips ==49|fips ==51|fips ==55|fips ==56), ])
+
+nonexpanstates <- as.data.frame(nonexpanstates)
+
+```
+
+```{r subset by pre and post for both expan and non expan states}
+
+statelevel3$iyearnum <- as.numeric(as.character(statelevel3$iyear))
+expanstates$iyearnum <- as.numeric(as.character(expanstates$iyear))
+nonexpanstates$iyearnum <- as.numeric(as.character(nonexpanstates$iyear))
+
+expanstatespre <- with(expanstates, expanstates[ which(iyearnum < 2014), ])
+expanstatespost <- with(expanstates, expanstates[ which(iyearnum >= 2014), ])
+
+nonexpanstatespre <- with(nonexpanstates, nonexpanstates[ which(iyearnum < 2014), ])
+nonexpanstatespost <- with(nonexpanstates, nonexpanstates[ which(iyearnum >= 2014), ])
+
+```
+
+```{r create mean/standard error table}
+
+# find means
+expanstatespre.sumstats <- as.data.frame(expanstatespre %>% 
+group_by(expan) %>% 
+summarise(round(mean(Deathsnum, na.rm=T)), mean(bachelor, na.rm=T), round(mean(Population, na.rm=T)), mean(unemploy, na.rm=T)))
+
+expanstatespost.sumstats <- as.data.frame(expanstatespost %>% 
+group_by(expan) %>% 
+summarise(round(mean(Deathsnum, na.rm=T)), mean(bachelor, na.rm=T), round(mean(Population, na.rm=T)), mean(unemploy, na.rm=T)))
+
+nonexpanstatespre.sumstats <- as.data.frame(nonexpanstatespre %>% 
+group_by(expan) %>% 
+summarise(round(mean(Deathsnum, na.rm=T)), mean(bachelor, na.rm=T), round(mean(Population, na.rm=T)), mean(unemploy, na.rm=T)))
+
+nonexpanstatespost.sumstats <- as.data.frame(nonexpanstatespost %>% 
+group_by(expan) %>% 
+summarise(round(mean(Deathsnum, na.rm=T)), mean(bachelor, na.rm=T), round(mean(Population, na.rm=T)), mean(unemploy, na.rm=T)))
+
+# find standard deviations
+
+expanstatespre.sumstats2 <- as.data.frame(expanstatespre %>% 
+group_by(expan) %>% 
+summarise(sd(Deathsnum, na.rm=T), sd(bachelor, na.rm=T), sd(Population, na.rm=T), sd(unemploy, na.rm=T)))
+
+expanstatespost.sumstats2 <- as.data.frame(expanstatespost %>% 
+group_by(expan) %>% 
+summarise(sd(Deathsnum, na.rm=T), sd(bachelor, na.rm=T), sd(Population, na.rm=T), sd(unemploy, na.rm=T)))
+
+nonexpanstatespre.sumstats2 <- as.data.frame(nonexpanstatespre %>% 
+group_by(expan) %>% 
+summarise(sd(Deathsnum, na.rm=T), sd(bachelor, na.rm=T), sd(Population, na.rm=T), sd(unemploy, na.rm=T)))
+
+nonexpanstatespost.sumstats2 <- as.data.frame(nonexpanstatespost %>% 
+group_by(expan) %>% 
+summarise(sd(Deathsnum, na.rm=T), sd(bachelor, na.rm=T), sd(Population, na.rm=T), sd(unemploy, na.rm=T)))
+
+
+# remove second rows in each new summary stat table
+
+#means
+expanstatespre.sumstats1 <- with(expanstatespre.sumstats, expanstatespre.sumstats[ which(expan == 0), ])
+
+expanstatespost.sumstats1 <- with(expanstatespost.sumstats, expanstatespost.sumstats[ which(expan == 0), ])
+
+nonexpanstatespre.sumstats1 <- with(nonexpanstatespre.sumstats, nonexpanstatespre.sumstats[ which(expan == 0), ])
+
+nonexpanstatespost.sumstats1 <- with(nonexpanstatespost.sumstats, nonexpanstatespost.sumstats[ which(expan == 0), ])
+
+#standard deviations
+expanstatespre.sumstats3 <- with(expanstatespre.sumstats2, expanstatespre.sumstats2[ which(expan == 0), ])
+
+expanstatespost.sumstats3 <- with(expanstatespost.sumstats2, expanstatespost.sumstats2[ which(expan == 0), ])
+
+nonexpanstatespre.sumstats3 <- with(nonexpanstatespre.sumstats2, nonexpanstatespre.sumstats2[ which(expan == 0), ])
+
+nonexpanstatespost.sumstats3 <- with(nonexpanstatespost.sumstats2, nonexpanstatespost.sumstats2[ which(expan == 0), ])
+
+# rename columns to match
+
+listDF <- list(expanstatespre.sumstats1,expanstatespost.sumstats1,nonexpanstatespre.sumstats1,nonexpanstatespost.sumstats1,expanstatespre.sumstats3,expanstatespost.sumstats3,nonexpanstatespre.sumstats3,nonexpanstatespost.sumstats3)
+
+new_col_name <-  c("Expan", "Deaths","Bachelor's", "Population","Unemployment")
+
+dflist <- lapply(listDF, setNames, nm = new_col_name)
+
+epre.meandf <- as.data.frame(dflist[[1]])
+epost.meandf <- as.data.frame(dflist[[2]])
+npre.meandf <- as.data.frame(dflist[[3]])
+npost.meandf <- as.data.frame(dflist[[4]])
+
+epre.sddf <- as.data.frame(dflist[[5]])
+epost.sddf <- as.data.frame(dflist[[6]])
+npre.sddf <- as.data.frame(dflist[[7]])
+npost.sddf <- as.data.frame(dflist[[8]])
+
+#merge
+expanstatepre <- rbind(epre.meandf, epre.sddf)
+expanstatepost <- rbind(epost.meandf, epost.sddf)
+nexpanstatepre <- rbind(npre.meandf, npre.sddf)
+nexpanstatepost <- rbind(npost.meandf, npost.sddf)
+
+#round values and add parenthesis around standard deviations
+expanstatepre[,-1] <-round(expanstatepre[,-1],2)
+expanstatepre[2,] <- paste0("(", format((expanstatepre[2,])),")")
+
+expanstatepost[,-1] <-round(expanstatepost[,-1],2)
+expanstatepost[2,] <- paste0("(", format((expanstatepost[2,])),")")
+
+nexpanstatepre[,-1] <-round(nexpanstatepre[,-1],2)
+nexpanstatepre[2,] <- paste0("(", format((nexpanstatepre[2,])),")")
+
+nexpanstatepost[,-1] <-round(nexpanstatepost[,-1],2)
+nexpanstatepost[2,] <- paste0("(", format((nexpanstatepost[2,])),")")
+
+
+```
+
+```{r mean/ses tables and reshape}
+
+expanstatepre$group <- as.factor(rep("ExpanPre14"))
+expanstatepost$group <- as.factor(rep("ExpanPost14"))
+nexpanstatepre$group <- as.factor(rep("NonExpanPre14"))
+nexpanstatepost$group <- as.factor(rep("NonExpanPost14"))
+
+# transpose so columns are now in rows
+
+expanstatepre <- reshape(expanstatepre, timevar="Expan", idvar=c("group"), direction="wide")
+expanstatepre2 <- as.data.frame(t(expanstatepre[ ,-1]))
+names(expanstatepre2) <- c("Expansion State Pre-2014")
+
+expanstatepost <- reshape(expanstatepost, timevar="Expan", idvar=c("group"), direction="wide")
+expanstatepost2 <- as.data.frame(t(expanstatepost[ ,-1]))
+names(expanstatepost2) <- c("Expansion State Post-2014")
+
+
+nexpanstatepre <- reshape(nexpanstatepre, timevar="Expan", idvar=c("group"), direction="wide")
+nexpanstatepre2 <- as.data.frame(t(nexpanstatepre[ ,-1]))
+names(nexpanstatepre2) <- c("Non-Expansion State Pre-2014")
+
+
+nexpanstatepost <- reshape(nexpanstatepost, timevar="Expan", idvar=c("group"), direction="wide")
+nexpanstatepost2 <- as.data.frame(t(nexpanstatepost[ ,-1]))
+names(nexpanstatepost2) <- c("Non-Expansion State Post-2014")
+
+```
+
+```{r cbind sum stat dataframes}
+
+groupedprepost <- cbind(expanstatepre2,expanstatepost2,nexpanstatepre2,nexpanstatepost2)
+
+groupedprepost$Statistic <- c("Deaths", "Bachelor's", "Population", "Unemployment", "Deaths SD","Bachelor's SD","Population SD", "Unemployment SD")
+
+groupedprepost1 <- groupedprepost[c(5,1,2,3,4)]
+
+target <- c("Deaths","Deaths SD","Bachelor's", "Bachelor's SD", "Population", "Population SD", "Unemployment", "Unemployment SD")
+
+groupedprepost2 <- groupedprepost1[match(target, groupedprepost1$Statistic),]
+
+groupedprepost2$Statistic <- with(groupedprepost2, ifelse(Statistic=="Bachelor's SD","", ifelse(Statistic=="Deaths SD","", ifelse(Statistic=="Population SD","", ifelse(Statistic=="Unemployment SD", "",Statistic)))))
+
+```
+
+```{r stargazer to make pretty}
+
+stargazer(groupedprepost2, type="text", rownames=F, summary=F, title = "Descriptive Statistics for States", notes= "Mean(Standard Deviation)") 
+```
+
+
+Descriptive Statistics for States
+==========================================================================================================================
+Statistic    Expansion State Pre-2014 Expansion State Post-2014 Non-Expansion State Pre-2014 Non-Expansion State Post-2014
+--------------------------------------------------------------------------------------------------------------------------
+Deaths                 356                       400                        327                           521             
+                     (378.18)                  (433.8)                    (350.66)                     (419.46)           
+Bachelor's            796.38                   570.43                      742.44                       864.03            
+                     (993.08)                 (598.44)                    (753.59)                     (926.92)           
+Population           5845644                   5158810                    5847136                       6435403           
+                    (6944545)                 (4928858)                  (5767443)                     (6731107)          
+Unemployment           5.97                     5.56                        5.59                         4.83             
+                      (2.1)                    (0.97)                      (2.05)                       (1.16)            
+--------------------------------------------------------------------------------------------------------------------------
+Mean(Standard Deviation)           
