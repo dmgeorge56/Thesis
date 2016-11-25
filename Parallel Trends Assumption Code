@@ -1,0 +1,78 @@
+---
+title: "PTAandSSLTT"
+author: "Dana George"
+date: "November 25, 2016"
+output: html_document
+---
+
+```{r load data}
+
+statelevel10 <- read.csv("P:\\Thesis\\statelevel10R.csv")
+
+```
+
+```{r clean data}
+
+statelevel10s <- statelevel10[!(statelevel10$iyear=="2015" | statelevel10$iyear=="2016"),]
+
+```
+
+```{r test parallel trends assumption}
+
+# create year dummys
+statelevel10s <- cbind(statelevel10s, dummy(statelevel10s$iyear, sep = "_"))
+
+# create expansion vs non expansion state dummy
+statelevel10s <- cbind(statelevel10s, dummy(statelevel10s$expanstate, sep = "_"))statelevel10s_2012
+
+
+# create interaction terms
+statelevel10s$ptatest99 <- statelevel10s$statelevel10s_1999*statelevel10s$statelevel10s_1
+statelevel10s$ptatest00 <- statelevel10s$statelevel10s_2000*statelevel10s$statelevel10s_1
+statelevel10s$ptatest01 <- statelevel10s$statelevel10s_2001*statelevel10s$statelevel10s_1
+statelevel10s$ptatest02 <- statelevel10s$statelevel10s_2002*statelevel10s$statelevel10s_1
+statelevel10s$ptatest03 <- statelevel10s$statelevel10s_2003*statelevel10s$statelevel10s_1
+statelevel10s$ptatest04 <- statelevel10s$statelevel10s_2004*statelevel10s$statelevel10s_1
+statelevel10s$ptatest05 <- statelevel10s$statelevel10s_2005*statelevel10s$statelevel10s_1
+statelevel10s$ptatest06 <- statelevel10s$statelevel10s_2006*statelevel10s$statelevel10s_1
+statelevel10s$ptatest07 <- statelevel10s$statelevel10s_2007*statelevel10s$statelevel10s_1
+statelevel10s$ptatest08 <- statelevel10s$statelevel10s_2008*statelevel10s$statelevel10s_1
+statelevel10s$ptatest09 <- statelevel10s$statelevel10s_2009*statelevel10s$statelevel10s_1
+statelevel10s$ptatest10 <- statelevel10s$statelevel10s_2010*statelevel10s$statelevel10s_1
+statelevel10s$ptatest11 <- statelevel10s$statelevel10s_2011*statelevel10s$statelevel10s_1
+statelevel10s$ptatest12 <- statelevel10s$statelevel10s_2012*statelevel10s$statelevel10s_1
+statelevel10s$ptatest13 <- statelevel10s$statelevel10s_2013*statelevel10s$statelevel10s_1
+statelevel10s$ptatest14 <- statelevel10s$statelevel10s_2014*statelevel10s$statelevel10s_1
+
+
+# ref year = 2010
+x1 <- lm(Deathsnum ~ ptatest99 + ptatest00 +ptatest01 + ptatest02 + ptatest03 + ptatest04 + ptatest05 + ptatest06 + ptatest07 + ptatest08 + ptatest09 + ptatest11 + ptatest12 + ptatest13 + ptatest14, data=statelevel10s)
+
+# add controls
+x2 <- lm(Deathsnum ~ + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad + Population + ptatest99 + ptatest00 + ptatest01 + ptatest02 + ptatest03 + ptatest04 + ptatest05 + ptatest06 + ptatest07 + ptatest08 + ptatest09 + ptatest11 + ptatest12 + ptatest13 + ptatest14, data=statelevel10s)
+
+# ref year = 2010, add FE
+
+# create fixed effects
+statelevel10s$iyearf <- as.factor(statelevel10s$iyear)
+statelevel10s$iyearef10 <- relevel(statelevel10s$iyearf, ref = "2010")
+statelevel10s$fe.yearef10 <- factor(statelevel10s$iyearef10)
+
+statelevel10s$fipsf <- as.factor(statelevel10s$fips)
+statelevel10s$fe.fips <- factor(statelevel10s$fipsf)
+
+# add FE's
+x3 <- plm(Deathsnum ~ ptatest99 + ptatest00 +ptatest01 + ptatest02 + ptatest03 + ptatest04 + ptatest05 + ptatest06 + ptatest07 + ptatest08 + ptatest09 + ptatest11 + ptatest12 + ptatest13 + ptatest14, data=statelevel10s, model="within", index=c("fe.yearef10","fe.fips"))
+
+# add controls and FEs
+x4 <- plm(Deathsnum ~ + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad + Population + ptatest99 + ptatest00 +ptatest01 + ptatest02 + ptatest03 + ptatest04 + ptatest05 + ptatest06 + ptatest07 + ptatest08 + ptatest09 + ptatest11 + ptatest12 + ptatest13 + ptatest14, data=statelevel10s, model="within", index=c("fe.yearef10","fe.fips"))
+
+
+```
+
+```{r stargazer parallel trends assumption}
+
+stargazer(x1, x2, x3, x4, type="html",  report=('vc*p'), title="x1, x2, x3, x4, parallel trends assumption test", notes ="*Sex Ratio equals the number of males per 100 females. Standard errors are clustered by state to account for correlation in the state-level errors over time. Clustered standard errors are shown in the Appendix.", align=TRUE, dep.var.labels = c("Deaths related to opioids"),covariate.labels=c("Unemployment", "Median Income", "Median Age","Sex Ratio*","Percent White","Percent Black","No HS Degree","HS Graduate","College Graduate", "Population", "1999*Expansion", "2000*Expansion", "2001*Expansion", "2002*Expansion", "2003*Expansion", "2004*Expansion", "2005*Expansion", "2006*Expansion", "2007*Expansion", "2008*Expansion", "2009*Expansion", "2011*Expansion", "2012*Expansion", "2013*Expansion", "2014*Expansion"))
+
+```
+
