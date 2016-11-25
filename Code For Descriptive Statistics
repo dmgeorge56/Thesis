@@ -1,0 +1,300 @@
+---
+title: "DescriptiveStatsTHESIS"
+author: "Dana George"
+date: "November 25, 2016"
+output: html_document
+---
+
+```{r subset to expan states vs non expan states}
+
+statelevel10$fipsnum <- as.numeric(as.character(statelevel10$fips))
+
+expanstates <- with(statelevel10, statelevel10[ which(fips == 2|fips == 4|fips == 5|fips == 6|fips == 8|fips == 9|fips == 10|fips == 11|fips == 15|fips == 17|fips == 18|fips == 19|fips == 21|fips == 22|fips == 24|fips == 25|fips == 26|fips == 27|fips == 30|fips == 32|fips == 33|fips == 34|fips == 35|fips == 36|fips == 38|fips == 39|fips == 41|fips == 42|fips == 44|fips == 50|fips == 53|fips == 54), ])
+
+expanstates10 <- as.data.frame(expanstates)
+
+nonexpanstates10 <- with(statelevel10, statelevel10[ which(fips == 1|fips ==12|fips ==13|fips ==16|fips ==20|fips ==23|fips ==28|fips ==29|fips ==31|fips ==37|fips ==40|fips ==45|fips ==46|fips ==47|fips ==48|fips ==49|fips ==51|fips ==55|fips ==56), ])
+
+nonexpanstates10 <- as.data.frame(nonexpanstates10)
+
+```
+
+```{r subset by pre and post for both expan and non expan states}
+
+statelevel10$iyearnum <- as.numeric(as.character(statelevel10$iyear))
+expanstates10$iyearnum <- as.numeric(as.character(expanstates10$iyear))
+nonexpanstates10$iyearnum <- as.numeric(as.character(nonexpanstates10$iyear))
+
+expanstatespre10 <- with(expanstates10, expanstates10[ which(iyearnum < 2014), ])
+expanstatespost10 <- with(expanstates10, expanstates10[ which(iyearnum >= 2014), ])
+
+nonexpanstatespre10 <- with(nonexpanstates10, nonexpanstates10[ which(iyearnum < 2014), ])
+nonexpanstatespost10 <- with(nonexpanstates10, nonexpanstates10[ which(iyearnum >= 2014), ])
+
+```
+
+```{r create mean/standard error table}
+
+# find means
+expanstatespre.sumstats10 <- as.data.frame(expanstatespre10 %>% 
+group_by(expan) %>% 
+summarise(round(mean(Deathsnum, na.rm=T))
+          , round(mean(Population, na.rm=T))
+          , mean(unemploy, na.rm=T)
+          , mean(numrecipients_percap, na.rm=T)
+          , round(mean(medianincome, na.rm=T))
+          , round(mean(medianage, na.rm=T))
+          , mean(sexratio, na.rm=T)
+          , mean(percentwhite, na.rm=T)
+          , mean(percentblack, na.rm=T)
+          , mean(noHSdegree, na.rm=T)
+          , mean(hsgrad,  na.rm=T)
+          , mean(collegegrad, na.rm=T)))
+
+expanstatespost.sumstats10 <- as.data.frame(expanstatespost10 %>% 
+group_by(expan) %>% 
+summarise(round(mean(Deathsnum, na.rm=T))
+          , round(mean(Population, na.rm=T))
+          , mean(unemploy, na.rm=T)
+          , mean(numrecipients_percap, na.rm=T)
+          , round(mean(medianincome, na.rm=T))
+          , round(mean(medianage, na.rm=T))
+          , mean(sexratio, na.rm=T)
+          , mean(percentwhite, na.rm=T)
+          , mean(percentblack, na.rm=T)
+          , mean(noHSdegree, na.rm=T)
+          , mean(hsgrad,  na.rm=T)
+          , mean(collegegrad, na.rm=T)))
+
+nonexpanstatespre.sumstats10 <- as.data.frame(nonexpanstatespre10 %>% 
+group_by(expan) %>% 
+summarise(round(mean(Deathsnum, na.rm=T))
+          , round(mean(Population, na.rm=T))
+          , mean(unemploy, na.rm=T)
+          , mean(numrecipients_percap, na.rm=T)
+          , round(mean(medianincome, na.rm=T))
+          , round(mean(medianage, na.rm=T))
+          , mean(sexratio, na.rm=T)
+          , mean(percentwhite, na.rm=T)
+          , mean(percentblack, na.rm=T)
+          , mean(noHSdegree, na.rm=T)
+          , mean(hsgrad,  na.rm=T)
+          , mean(collegegrad, na.rm=T)))
+
+nonexpanstatespost.sumstats10 <- as.data.frame(nonexpanstatespost10 %>% 
+group_by(expan) %>% 
+summarise(round(mean(Deathsnum, na.rm=T))
+          , round(mean(Population, na.rm=T))
+          , mean(unemploy, na.rm=T)
+          , mean(numrecipients_percap, na.rm=T)
+          , round(mean(medianincome, na.rm=T))
+          , round(mean(medianage, na.rm=T))
+          , mean(sexratio, na.rm=T)
+          , mean(percentwhite, na.rm=T)
+          , mean(percentblack, na.rm=T)
+          , mean(noHSdegree, na.rm=T)
+          , mean(hsgrad,  na.rm=T)
+          , mean(collegegrad, na.rm=T)))
+
+# find standard deviations
+
+expanstatespre.sumstats210 <- as.data.frame(expanstatespre10 %>% 
+group_by(expan) %>% 
+summarise(round(sd(Deathsnum, na.rm=T))
+          , round(sd(Population, na.rm=T))
+          , sd(unemploy, na.rm=T)
+          , sd(numrecipients_percap, na.rm=T)
+          , round(sd(medianincome, na.rm=T))
+          , round(sd(medianage, na.rm=T))
+          , sd(sexratio, na.rm=T)
+          , sd(percentwhite, na.rm=T)
+          , sd(percentblack, na.rm=T)
+          , sd(noHSdegree, na.rm=T)
+          , sd(hsgrad,na.rm=T)
+          , sd(collegegrad, na.rm=T)))
+
+expanstatespost.sumstats210 <- as.data.frame(expanstatespost10 %>% 
+group_by(expan) %>% 
+summarise(round(sd(Deathsnum, na.rm=T))
+          , round(sd(Population, na.rm=T))
+          , sd(unemploy, na.rm=T)
+          , sd(numrecipients_percap, na.rm=T)
+          , round(sd(medianincome, na.rm=T))
+          , round(sd(medianage, na.rm=T))
+          , sd(sexratio, na.rm=T)
+          , sd(percentwhite, na.rm=T)
+          , sd(percentblack, na.rm=T)
+          , sd(noHSdegree, na.rm=T)
+          , sd(hsgrad,na.rm=T)
+          , sd(collegegrad, na.rm=T)))
+
+nonexpanstatespre.sumstats210 <- as.data.frame(nonexpanstatespre10 %>% 
+group_by(expan) %>% 
+summarise(round(sd(Deathsnum, na.rm=T))
+          , round(sd(Population, na.rm=T))
+          , sd(unemploy, na.rm=T)
+          , sd(numrecipients_percap, na.rm=T)
+          , round(sd(medianincome, na.rm=T))
+          , round(sd(medianage, na.rm=T))
+          , sd(sexratio, na.rm=T)
+          , sd(percentwhite, na.rm=T)
+          , sd(percentblack, na.rm=T)
+          , sd(noHSdegree, na.rm=T)
+          , sd(hsgrad,na.rm=T)
+          , sd(collegegrad, na.rm=T)))
+
+nonexpanstatespost.sumstats210 <- as.data.frame(nonexpanstatespost10 %>% 
+group_by(expan) %>% 
+summarise(round(sd(Deathsnum, na.rm=T))
+          , round(sd(Population, na.rm=T))
+          , sd(unemploy, na.rm=T)
+          , sd(numrecipients_percap, na.rm=T)
+          , round(sd(medianincome, na.rm=T))
+          , round(sd(medianage, na.rm=T))
+          , sd(sexratio, na.rm=T)
+          , sd(percentwhite, na.rm=T)
+          , sd(percentblack, na.rm=T)
+          , sd(noHSdegree, na.rm=T)
+          , sd(hsgrad,na.rm=T)
+          , sd(collegegrad, na.rm=T)))
+
+# remove second rows in each new summary stat table
+
+#means
+expanstatespre.sumstats101 <- with(expanstatespre.sumstats10, expanstatespre.sumstats10[ which(expan == 0), ])
+
+expanstatespost.sumstats101 <- with(expanstatespost.sumstats10, expanstatespost.sumstats10[ which(expan == 0), ])
+
+nonexpanstatespre.sumstats101 <- with(nonexpanstatespre.sumstats10, nonexpanstatespre.sumstats10[ which(expan == 0), ])
+
+nonexpanstatespost.sumstats101 <- with(nonexpanstatespost.sumstats10, nonexpanstatespost.sumstats10[ which(expan == 0), ])
+
+#standard deviations
+expanstatespre.sumstats32 <- with(expanstatespre.sumstats210, expanstatespre.sumstats210[ which(expan == 0), ])
+
+expanstatespost.sumstats32 <- with(expanstatespost.sumstats210, expanstatespost.sumstats210[ which(expan == 0), ])
+
+nonexpanstatespre.sumstats32 <- with(nonexpanstatespre.sumstats210, nonexpanstatespre.sumstats210[ which(expan == 0), ])
+
+nonexpanstatespost.sumstats32 <- with(nonexpanstatespost.sumstats210, nonexpanstatespost.sumstats210[ which(expan == 0), ])
+
+# rename columns to match
+
+listDF <- list(expanstatespre.sumstats101,expanstatespost.sumstats101,nonexpanstatespre.sumstats101,nonexpanstatespost.sumstats101,expanstatespre.sumstats32,expanstatespost.sumstats32,nonexpanstatespre.sumstats32,nonexpanstatespost.sumstats32)
+
+new_col_name <-  c("Expan", "Deaths Related To Opioids", "Population","Unemployment","Number of Medicaid Recipients Per Capita", "Median Income", "Median Age", "Sex Ratio*", "Percent White","Percent Black", "Percent No HS Degree","Percent HS Graduate", "Percent College Graduate")
+
+dflist <- lapply(listDF, setNames, nm = new_col_name)
+
+epre.meandf <- as.data.frame(dflist[[1]])
+epost.meandf <- as.data.frame(dflist[[2]])
+npre.meandf <- as.data.frame(dflist[[3]])
+npost.meandf <- as.data.frame(dflist[[4]])
+
+epre.sddf <- as.data.frame(dflist[[5]])
+epost.sddf <- as.data.frame(dflist[[6]])
+npre.sddf <- as.data.frame(dflist[[7]])
+npost.sddf <- as.data.frame(dflist[[8]])
+
+#merge
+expanstatepre <- rbind(epre.meandf, epre.sddf)
+expanstatepost <- rbind(epost.meandf, epost.sddf)
+nexpanstatepre <- rbind(npre.meandf, npre.sddf)
+nexpanstatepost <- rbind(npost.meandf, npost.sddf)
+
+#round values and add parenthesis around standard deviations
+expanstatepre[,-1] <- round(expanstatepre[,-1],2)
+expanstatepre[2,] <- paste0("(", format((expanstatepre[2,])),")")
+
+expanstatepost[,-1] <-round(expanstatepost[,-1],2)
+expanstatepost[2,] <- paste0("(", format((expanstatepost[2,])),")")
+
+nexpanstatepre[,-1] <-round(nexpanstatepre[,-1],2)
+nexpanstatepre[2,] <- paste0("(", format((nexpanstatepre[2,])),")")
+
+nexpanstatepost[,-1] <-round(nexpanstatepost[,-1],2)
+nexpanstatepost[2,] <- paste0("(", format((nexpanstatepost[2,])),")")
+
+
+```
+
+```{r mean/ses tables and reshape}
+
+expanstatepre$group <- as.factor(rep("ExpanPre14"))
+expanstatepost$group <- as.factor(rep("ExpanPost14"))
+nexpanstatepre$group <- as.factor(rep("NonExpanPre14"))
+nexpanstatepost$group <- as.factor(rep("NonExpanPost14"))
+
+# transpose so columns are now in rows
+
+expanstatepre <- reshape(expanstatepre, timevar="Expan", idvar=c("group"), direction="wide")
+expanstatepre2 <- as.data.frame(t(expanstatepre[ ,-1]))
+names(expanstatepre2) <- c("Expansion State Pre-2014")
+
+expanstatepost <- reshape(expanstatepost, timevar="Expan", idvar=c("group"), direction="wide")
+expanstatepost2 <- as.data.frame(t(expanstatepost[ ,-1]))
+names(expanstatepost2) <- c("Expansion State Post-2014")
+
+
+nexpanstatepre <- reshape(nexpanstatepre, timevar="Expan", idvar=c("group"), direction="wide")
+nexpanstatepre2 <- as.data.frame(t(nexpanstatepre[ ,-1]))
+names(nexpanstatepre2) <- c("Non-Expansion State Pre-2014")
+
+
+nexpanstatepost <- reshape(nexpanstatepost, timevar="Expan", idvar=c("group"), direction="wide")
+nexpanstatepost2 <- as.data.frame(t(nexpanstatepost[ ,-1]))
+names(nexpanstatepost2) <- c("Non-Expansion State Post-2014")
+
+```
+
+```{r cbind sum stat dataframes}
+
+groupedprepost <- cbind(expanstatepre2,expanstatepost2,nexpanstatepre2,nexpanstatepost2)
+
+groupedprepost$Statistic <- c("Deaths", "Population", "Unemployment", "Number of Medicaid Recipients Per Capita", "Median Income", "Median Age", "Sex Ratio*", "Percent White","Percent Black", "Percent No HS Degree","Percent HS Graduate", "Percent College Graduate", "Deaths SD", "Population SD", "Unemployment SD", "Number of Medicaid Recipients Per Capita SD", "Median Income SD", "Median Age SD", "Sex Ratio SD*", "Percent White SD","Percent Black SD", "Percent No HS Degree SD","Percent HS Graduate SD", "Percent College Graduate SD") 
+
+groupedprepost1 <- groupedprepost[c(5,1,2,3,4)]
+
+target <- c("Deaths","Deaths SD", "Population", "Population SD", "Unemployment", "Unemployment SD", "Number of Medicaid Recipients Per Capita", "Number of Medicaid Recipients Per Capita SD", "Median Income", "Median Income SD","Median Age", "Median Age SD", "Sex Ratio*", "Sex Ratio SD*", "Percent White","Percent White SD", "Percent Black", "Percent Black SD","Percent No HS Degree", "Percent No HS Degree SD", "Percent HS Graduate", "Percent HS Graduate SD","Percent College Graduate","Percent College Graduate SD")
+
+groupedprepost2 <- groupedprepost1[match(target, groupedprepost1$Statistic),]
+
+groupedprepost2$Statistic <- with(groupedprepost2, ifelse(Statistic=="Deaths SD","", ifelse(Statistic=="Population SD","", ifelse(Statistic=="Unemployment SD","", ifelse(Statistic=="Number of Medicaid Recipients Per Capita SD", "", ifelse(Statistic=="Median Income SD", "", ifelse(Statistic=="Median Age SD", "", ifelse(Statistic=="Sex Ratio SD*", "", ifelse(Statistic=="Percent White SD", "", ifelse(Statistic=="Percent Black SD", "", ifelse(Statistic=="Percent No HS Degree SD","", ifelse(Statistic=="Percent HS Graduate SD","",ifelse(Statistic=="Percent College Graduate SD","",Statistic)))))))))))))
+
+```
+
+```{r stargazer to make pretty}
+
+stargazer(groupedprepost2, type="text", rownames=F, summary=F, title = "Descriptive Statistics for States\nMean(Standard Deviation")
+```
+
+Descriptive Statistics for States
+======================================================================================================================================================
+Statistic                                Expansion State Pre-2014 Expansion State Post-2014 Non-Expansion State Pre-2014 Non-Expansion State Post-2014
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Deaths                                             357                       400                        323                           521             
+                                                  (375)                     (434)                      (347)                         (419)            
+Population                                       5854789                   4499675                    5797098                       6511461           
+                                                (6960417)                 (4308796)                  (5748282)                     (6737950)          
+Unemployment                                       5.98                     5.56                        5.58                         4.83             
+                                                  (2.11)                   (0.97)                      (2.03)                       (1.16)            
+Number of Medicaid Recipients Per Capita           0.19                     0.19                        0.18                         0.17             
+                                                  (0.06)                   (0.03)                      (0.05)                       (0.04)            
+Median Income                                     48644                     51670                      44347                         52282            
+                                                  (8677)                   (8157)                      (6584)                       (7060)            
+Median Age                                          38                       38                          37                           37              
+                                                   (2)                       (3)                        (3)                           (3)             
+Sex Ratio*                                        97.28                     99.34                      97.36                         97.35            
+                                                  (3.43)                   (5.15)                      (2.62)                       (2.57)            
+Percent White                                      0.77                     0.76                        0.79                         0.78             
+                                                  (0.15)                   (0.12)                      (0.11)                       (0.11)            
+Percent Black                                      0.1                      0.13                        0.13                         0.13             
+                                                  (0.11)                   (0.14)                      (0.11)                       (0.11)            
+Percent No HS Degree                               0.14                     0.12                        0.14                         0.13             
+                                                  (0.03)                   (0.02)                      (0.03)                       (0.02)            
+Percent HS Graduate                                0.24                     0.25                        0.24                         0.23             
+                                                  (0.04)                   (0.03)                      (0.03)                       (0.03)            
+Percent College Graduate                           0.13                     0.13                        0.12                         0.13             
+                                                  (0.03)                   (0.02)                      (0.02)                       (0.02)            
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Format: Mean(Standard Deviation)                                                                                                                      
