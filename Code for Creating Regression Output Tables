@@ -1,4 +1,15 @@
-# all code for regression output tables are coded with the following syntax. For specfic code, see regression code:
+
+####################################################################################################
+#                                      Code Create Output Tables                                   #
+####################################################################################################                                                                                                  #
+# This Branch Includes:                                                                            #
+#      1. All code for regression output tables are coded with the following syntax.               #
+#         For specfic code, see regression code.                                                   #
+#                                                                                                  #
+#                                                                                                  #
+#                                                                                                  #
+####################################################################################################
+
 
 ```{r stargazer all together now, RACE}
 
