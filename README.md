@@ -22,7 +22,10 @@
     Code to get summary stat numbers
     Code to get summary stat tables
     Summary Statistics include the following: Variable Name, Variable Definition, Mean/Average, Min, Max
+    
+####Code for Creating Heat Maps and Line Graphs
        
 ####Code for Regressions
  
 ####Code for Creating Regression Output Tables
+
