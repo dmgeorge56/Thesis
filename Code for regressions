@@ -1,41 +1,14 @@
+####################################################################################################
+#                                      Code for regressions                                        #
+####################################################################################################                                                                                                  #
+# This Branch Includes:                                                                            #
+#      1. regression code for all regressions included in final paper                              #
+#                                                                                                  #
+#                                                                                                  #
+#                                                                                                  #
+####################################################################################################
 
----
-title: "Thesis: Regression Code and Raw Output"
-author: "Dana George"
-date: "November 13, 2016"
-output: html_document
----
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-```{r brfss}
-
-# load data
-
-load("P:\\Thesis\\loaded.dum_BRFSS_WITH_DUMMYS")
-load("P:\\Thesis\\cdc_enroll.rdata")
-
-
-
-# rename to be ready to merge
-
-names(loaded.dum)[names(loaded.dum)=="x.state"] <- "fips"
-names(enroll)[names(enroll)=="year"] <- "iyear"
-names(enroll)[names(enroll)=="state"] <- "x.state"
-
-
-
-# merge dataframes
-
-brfssANDenroll <- merge(loaded.dum, enroll, by=c("fips", "iyear"), all=TRUE)
-save(brfssANDenroll, file="P:\\Thesis\\brfssANDenroll.rdata")
-
-load("P:\\Thesis\\brfssANDenroll.rdata")
-
-brfssANDenroll <- as.data.frame(brfssANDenroll)
-
-
+# 1. brfss - individual level regressions                                                          #
 
 # clean
 
@@ -44,341 +17,460 @@ brfssANDenroll$hlthplan <- with(brfssANDenroll, ifelse(hlthplan==1, 1, ifelse(hl
 brfssANDenroll$expanf <- as.factor(brfssANDenroll$expan)
 
 # relevel expanf so felm reads 0 as base level
-brfssANDenroll$expanf <- with(brfssANDenroll, ifelse(expanf==1, 0,
-                                              ifelse(expanf==0, 1, NA)))
+#brfssANDenroll$expanf <- with(brfssANDenroll, ifelse(expanf==1, 0,
+#                                             ifelse(expanf==0, 1, NA)))
 
+# create time trend variable
+brfssANDenroll$trend <- with(brfssANDenroll, ifelse(iyear==1999, 1
+                                         , ifelse(iyear==2000, 2
+                                         , ifelse(iyear==2001, 3
+                                         , ifelse(iyear==2002, 4
+                                         , ifelse(iyear==2003, 5
+                                         , ifelse(iyear==2004, 6
+                                         , ifelse(iyear==2005, 7
+                                         , ifelse(iyear==2006, 8
+                                         , ifelse(iyear==2007, 9
+                                         , ifelse(iyear==2008, 10
+                                         , ifelse(iyear==2009, 11
+                                         , ifelse(iyear==2010, 12
+                                         , ifelse(iyear==2011, 13
+                                         , ifelse(iyear==2012, 14
+                                         , ifelse(iyear==2013, 15
+                                         , ifelse(iyear==2014, 16, NA)))))))))))))))))
 
+#create state indicator variables
+brfssANDenroll <- cbind(brfssANDenroll, dummy(brfssANDenroll$x.state, sep = "_"))
+
+# change spaces to . in column names
+names(brfssANDenroll) <- sub(" ", ".", names(brfssANDenroll))
+
+# create interaction terms
+brfssANDenroll$Rsslttala <- with(brfssANDenroll, brfssANDenroll_Alabama*trend)
+brfssANDenroll$Rsslttal <- with(brfssANDenroll, brfssANDenroll_Alaska*trend)
+brfssANDenroll$Rsslttar <- with(brfssANDenroll, brfssANDenroll_Arizona*trend)
+brfssANDenroll$Rsslttark <- with(brfssANDenroll, brfssANDenroll_Arkansas*trend)
+brfssANDenroll$Rsslttca <- with(brfssANDenroll, brfssANDenroll_California*trend)
+brfssANDenroll$Rsslttco <- with(brfssANDenroll, brfssANDenroll_Colorado*trend)
+brfssANDenroll$Rsslttcn <- with(brfssANDenroll, brfssANDenroll_Connecticut*trend)
+brfssANDenroll$Rsslttde <- with(brfssANDenroll, brfssANDenroll_Delaware*trend)
+brfssANDenroll$Rsslttdc <- with(brfssANDenroll, brfssANDenroll_District.of.Columbia*trend)
+brfssANDenroll$Rsslttfl <- with(brfssANDenroll, brfssANDenroll_Florida*trend)
+brfssANDenroll$Rsslttge <- with(brfssANDenroll, brfssANDenroll_Georgia*trend)
+brfssANDenroll$Rssltthi <- with(brfssANDenroll, brfssANDenroll_Hawaii*trend)
+brfssANDenroll$Rsslttid <- with(brfssANDenroll, brfssANDenroll_Idaho*trend)
+brfssANDenroll$Rsslttil <- with(brfssANDenroll, brfssANDenroll_Illinois*trend)
+brfssANDenroll$Rsslttin <- with(brfssANDenroll, brfssANDenroll_Indiana*trend)
+brfssANDenroll$Rsslttio <- with(brfssANDenroll, brfssANDenroll_Iowa*trend)
+brfssANDenroll$Rsslttkan <- with(brfssANDenroll, brfssANDenroll_Kansas*trend)
+brfssANDenroll$Rsslttakt <- with(brfssANDenroll, brfssANDenroll_Kentucky*trend)
+brfssANDenroll$Rsslttlo <- with(brfssANDenroll, brfssANDenroll_Louisiana*trend)
+brfssANDenroll$Rsslttma <- with(brfssANDenroll, brfssANDenroll_Maine*trend)
+brfssANDenroll$Rsslttmd <- with(brfssANDenroll, brfssANDenroll_Maryland*trend)
+brfssANDenroll$Rsslttmass <- with(brfssANDenroll, brfssANDenroll_Massachusetts*trend)
+brfssANDenroll$Rsslttmic <- with(brfssANDenroll, brfssANDenroll_Michigan*trend)
+brfssANDenroll$Rsslttmin <- with(brfssANDenroll, brfssANDenroll_Minnesota*trend)
+brfssANDenroll$Rsslttmis <- with(brfssANDenroll, brfssANDenroll_Mississippi*trend)
+brfssANDenroll$Rsslttmi <- with(brfssANDenroll, brfssANDenroll_Missouri*trend)
+brfssANDenroll$Rsslttmt <- with(brfssANDenroll, brfssANDenroll_Montana*trend)
+brfssANDenroll$Rsslttneb <- with(brfssANDenroll, brfssANDenroll_Nebraska*trend)
+brfssANDenroll$Rsslttnv <- with(brfssANDenroll, brfssANDenroll_Nevada*trend)
+brfssANDenroll$Rsslttnh <- with(brfssANDenroll, brfssANDenroll_New.Hampshire*trend)
+brfssANDenroll$Rsslttnj <- with(brfssANDenroll, brfssANDenroll_New.Jersey*trend)
+brfssANDenroll$Rsslttnm <- with(brfssANDenroll, brfssANDenroll_New.Mexico*trend)
+brfssANDenroll$Rsslttny <- with(brfssANDenroll, brfssANDenroll_New.York*trend)
+brfssANDenroll$Rsslttnc <- with(brfssANDenroll, brfssANDenroll_North.Carolina*trend)
+brfssANDenroll$Rsslttnd <- with(brfssANDenroll, brfssANDenroll_North.Dakota*trend)
+brfssANDenroll$Rsslttoh <- with(brfssANDenroll, brfssANDenroll_Ohio*trend)
+brfssANDenroll$Rsslttok <- with(brfssANDenroll, brfssANDenroll_Oklahoma*trend)
+brfssANDenroll$Rsslttor <- with(brfssANDenroll, brfssANDenroll_Oregon*trend)
+brfssANDenroll$Rsslttpa <- with(brfssANDenroll, brfssANDenroll_Pennsylvania*trend)
+brfssANDenroll$Rsslttri <- with(brfssANDenroll, brfssANDenroll_Rhode.Island*trend)
+brfssANDenroll$Rsslttsc <- with(brfssANDenroll, brfssANDenroll_South.Carolina*trend)
+brfssANDenroll$Rsslttsd <- with(brfssANDenroll, brfssANDenroll_South.Dakota*trend)
+brfssANDenroll$Rssltttn <- with(brfssANDenroll, brfssANDenroll_Tennessee*trend)
+brfssANDenroll$Rssltttx <- with(brfssANDenroll, brfssANDenroll_Texas*trend)
+brfssANDenroll$Rsslttut <- with(brfssANDenroll, brfssANDenroll_Utah*trend)
+brfssANDenroll$Rsslttver <- with(brfssANDenroll, brfssANDenroll_Vermont*trend)
+brfssANDenroll$Rsslttvi <- with(brfssANDenroll, brfssANDenroll_Virginia*trend)
+brfssANDenroll$Rsslttwa <- with(brfssANDenroll, brfssANDenroll_Washington*trend)
+brfssANDenroll$Rsslttwv <- with(brfssANDenroll, brfssANDenroll_West.Virginia*trend)
+brfssANDenroll$Rsslttwi <- with(brfssANDenroll, brfssANDenroll_Wisconsin*trend)
+brfssANDenroll$Rsslttwy <- with(brfssANDenroll, brfssANDenroll_Wyoming*trend)
+
+```
+
+```{r OLS regression expansion on healthplan}
 
 # simple regression without controls
 a1 <- lm(hlthplan ~ factor(expanf), data=brfssANDenroll)
 
-# simple regression with controls
-a2 <- lm(hlthplan ~ factor(expanf) + sex + nummen + numwomen + orace2 + educa + income2 + marital + employ + veteran + Agecat, data=brfssANDenroll)
+# simple regression with controls and FEs
+a2 <- lm(hlthplan ~ factor(expanf) + factor(iyear) + factor(fips) + sex + nummen + numwomen + orace2 + educa + income2 + marital + employ + veteran + Agecat, data=brfssANDenroll)
+
+# simple regression with controls and FEs and STATE SPECIFIC LINEAR TIME TRENDS
+
+a3 <- lm(hlthplan ~ factor(expanf) + factor(iyear) + factor(fips) + Rsslttala + Rsslttal + Rsslttar + Rsslttark + Rsslttca + Rsslttco + Rsslttcn + Rsslttde + Rsslttfl + Rsslttge + Rssltthi + Rsslttid + Rsslttin + Rsslttio + Rsslttil + Rsslttkan + Rsslttakt + Rsslttlo + Rsslttma + Rsslttmd + Rsslttmass + Rsslttmic + Rsslttmin + Rsslttmis + Rsslttmi + Rsslttmt + Rsslttneb + Rsslttnv + Rsslttnh + Rsslttnj + Rsslttnm + Rsslttnc + Rsslttnd + Rsslttoh + Rsslttok + Rsslttor + Rsslttpa + Rsslttri + Rsslttsc + Rsslttsd + Rssltttn + Rssltttx + Rsslttut + Rsslttver + Rsslttvi + Rsslttwa + Rsslttwv + Rsslttwi + Rsslttwy+ sex + nummen + numwomen + orace2 + educa + income2 + marital + employ + veteran + Agecat, data=brfssANDenroll)
 
 ```
 
 
 ```{r brfss reg output1, echo = FALSE}
 
-stargazer(a1, a2, title="OLS Regression Results", align=TRUE, dep.var.labels=c("Health Plan"), covariate.labels=c("Medicaid Expansion"), type="html", omit=c("sex","nummen","numwomen","orace2asian/p_islander","orace2black","orace2other","orace2white","educaelem","educahsgrad","educanoeduca/kinder","educasomecoll/tech","educasomehs","income210-14.9","income215-19.9","income220-24.9","income224-34.9","income235-49.9","income250-74.9","income275+","maritalmarried","maritalnevermarried","maritalseparated","maritalunmarriedcouple","maritalwidowed","employhomemaker","employnowork<1yr","employnowork>1yr","employretired","employselfemployed","employstudent","employunabletowork","Agecat25-29","Agecat30-34","Agecat35-39","Agecat40-44","Agecat45-49","Agecat50-54","Agecat55-59","Agecat60-64","Agecat65-69","Agecat70-74","Agecat75-79","Agecat80+", no.space=TRUE))
+library(sandwich)
+library(lmtest)   # waldtest; see also coeftest.
+
+# Adjust standard errors
+cov1         <- vcovHC(a2, type = "HC1")
+cov2         <- vcovHC(a3, type = "HC1")
+robust_se1    <- sqrt(diag(cov1))
+robust_se2    <- sqrt(diag(cov2))
+
+
+# Adjust F statistic 
+#wald_results1 <- waldtest(a2, vcov = cov1)
+#wald_results2 <- waldtest(a3, vcov = cov2)
+
+# FOR PRESENTATION
+stargazer(a2, a3, type = "text", 
+          title="Regression Results: Health Plan",
+          align=TRUE,
+          dep.var.labels=c("Health Plan"),
+          covariate.labels=c("Medicaid Expansion"),
+          se        = list(robust_se1, robust_se2),
+          omit.stat = c("f", "ser", "adj.rsq","rsq"), 
+          add.lines = list(c("Controls?", "yes", "yes"),
+                           c("State Fixed Effects?", "yes", "yes"),
+                           c("Year Fixed Effects?", "yes", "yes"),
+                           c("State Specific Linear Time Trends?", "no", "yes")),
+          keep=c("expanf"))
+
+# 1. CDC et al. - state level regressions                                                             #
+
+# Deaths <- HealthPlan
+```{r brfss}
+
+# relevel expanf so felm reads 0 as base level
+#brfssANDenroll$expanf <- with(brfssANDenroll, ifelse(expanf==1, 0,
+#                                              ifelse(expanf==0, 1, NA)))
+
+# load death data
+
+deathdata <- read.csv("P:\\Thesis\\y13add.csv")
+
+deathdata$expanf <- as.factor(deathdata$expan)
 
 ```
----
-OLS Regression Results
-=================================================================================
-                                         Dependent variable:                     
-                    -------------------------------------------------------------
-                                             Health Plan                         
-                            (w/o controls)                  (w/ controls)              
----------------------------------------------------------------------------------
-Medicaid Expansion             0.050***                       0.021***           
-                               (0.001)                        (0.001)            
-                                                                                 
-Constant                       0.885***                       0.734***           
-                               (0.0001)                       (0.003)            
-                                                                                 
----------------------------------------------------------------------------------
-Observations                  5,624,170                       859,260            
-R2                              0.001                          0.157             
-Adjusted R2                     0.001                          0.157             
-Residual Std. Error      0.317 (df = 5624168)           0.264 (df = 859215)      
-F Statistic         5,516.453*** (df = 1; 5624168) 3,632.581*** (df = 44; 859215)
-=================================================================================
-Note:                                                 *p<0.1; **p<0.05; ***p<0.01
+
+```{r state specific linear time trends}
+
+# create time trend variable
+deathdata$trend <- with(deathdata, ifelse(iyear==1999, 1
+                                         , ifelse(iyear==2000, 2
+                                         , ifelse(iyear==2001, 3
+                                         , ifelse(iyear==2002, 4
+                                         , ifelse(iyear==2003, 5
+                                         , ifelse(iyear==2004, 6
+                                         , ifelse(iyear==2005, 7
+                                         , ifelse(iyear==2006, 8
+                                         , ifelse(iyear==2007, 9
+                                         , ifelse(iyear==2008, 10
+                                         , ifelse(iyear==2009, 11
+                                         , ifelse(iyear==2010, 12
+                                         , ifelse(iyear==2011, 13
+                                         , ifelse(iyear==2012, 14
+                                         , ifelse(iyear==2013, 15
+                                         , ifelse(iyear==2014, 16, NA)))))))))))))))))
+
+#create state indicator variables
+deathdata <- cbind(deathdata, dummy(deathdata$state.x, sep = "_"))
+
+# change spaces to . in column names
+names(deathdata) <- sub(" ", ".", names(deathdata))
+
+# create interaction terms
+deathdata$nsslttala <- with(deathdata, deathdata_Alabama*trend)
+deathdata$nsslttal <- with(deathdata, deathdata_Alaska*trend)
+deathdata$nsslttar <- with(deathdata, deathdata_Arizona*trend)
+deathdata$nsslttark <- with(deathdata, deathdata_Arkansas*trend)
+deathdata$nsslttca <- with(deathdata, deathdata_California*trend)
+deathdata$nsslttco <- with(deathdata, deathdata_Colorado*trend)
+deathdata$nsslttcn <- with(deathdata, deathdata_Connecticut*trend)
+deathdata$nsslttde <- with(deathdata, deathdata_Delaware*trend)
+deathdata$nsslttdc <- with(deathdata, deathdata_District.of.Columbia*trend)
+deathdata$nsslttfl <- with(deathdata, deathdata_Florida*trend)
+deathdata$nsslttge <- with(deathdata, deathdata_Georgia*trend)
+deathdata$nssltthi <- with(deathdata, deathdata_Hawaii*trend)
+deathdata$nsslttid <- with(deathdata, deathdata_Idaho*trend)
+deathdata$nsslttil <- with(deathdata, deathdata_Illinois*trend)
+deathdata$nsslttin <- with(deathdata, deathdata_Indiana*trend)
+deathdata$nsslttio <- with(deathdata, deathdata_Iowa*trend)
+deathdata$nsslttkan <- with(deathdata, deathdata_Kansas*trend)
+deathdata$nsslttakt <- with(deathdata, deathdata_Kentucky*trend)
+deathdata$nsslttlo <- with(deathdata, deathdata_Louisiana*trend)
+deathdata$nsslttma <- with(deathdata, deathdata_Maine*trend)
+deathdata$nsslttmd <- with(deathdata, deathdata_Maryland*trend)
+deathdata$nsslttmass <- with(deathdata, deathdata_Massachusetts*trend)
+deathdata$nsslttmic <- with(deathdata, deathdata_Michigan*trend)
+deathdata$nsslttmin <- with(deathdata, deathdata_Minnesota*trend)
+deathdata$nsslttmis <- with(deathdata, deathdata_Mississippi*trend)
+deathdata$nsslttmi <- with(deathdata, deathdata_Missouri*trend)
+deathdata$nsslttmt <- with(deathdata, deathdata_Montana*trend)
+deathdata$nsslttneb <- with(deathdata, deathdata_Nebraska*trend)
+deathdata$nsslttnv <- with(deathdata, deathdata_Nevada*trend)
+deathdata$nsslttnh <- with(deathdata, deathdata_New.Hampshire*trend)
+deathdata$nsslttnj <- with(deathdata, deathdata_New.Jersey*trend)
+deathdata$nsslttnm <- with(deathdata, deathdata_New.Mexico*trend)
+deathdata$nsslttny <- with(deathdata, deathdata_New.York*trend)
+deathdata$nsslttnc <- with(deathdata, deathdata_North.Carolina*trend)
+deathdata$nsslttnd <- with(deathdata, deathdata_North.Dakota*trend)
+deathdata$nsslttoh <- with(deathdata, deathdata_Ohio*trend)
+deathdata$nsslttok <- with(deathdata, deathdata_Oklahoma*trend)
+deathdata$nsslttor <- with(deathdata, deathdata_Oregon*trend)
+deathdata$nsslttpa <- with(deathdata, deathdata_Pennsylvania*trend)
+deathdata$nsslttri <- with(deathdata, deathdata_Rhode.Island*trend)
+deathdata$nsslttsc <- with(deathdata, deathdata_South.Carolina*trend)
+deathdata$nsslttsd <- with(deathdata, deathdata_South.Dakota*trend)
+deathdata$nssltttn <- with(deathdata, deathdata_Tennessee*trend)
+deathdata$nssltttx <- with(deathdata, deathdata_Texas*trend)
+deathdata$nsslttut <- with(deathdata, deathdata_Utah*trend)
+deathdata$nsslttver <- with(deathdata, deathdata_Vermont*trend)
+deathdata$nsslttvi <- with(deathdata, deathdata_Virginia*trend)
+deathdata$nsslttwa <- with(deathdata, deathdata_Washington*trend)
+deathdata$nsslttwv <- with(deathdata, deathdata_West.Virginia*trend)
+deathdata$nsslttwi <- with(deathdata, deathdata_Wisconsin*trend)
+deathdata$nsslttwy <- with(deathdata, deathdata_Wyoming*trend)
+
+```
+
+```{r OLS regression expansion on healthplan}
+
+deathdata$DeathsnumD100000 <- with(deathdata, Deathsnum/100000)
+deathdata$numrecipients1000 <- with(deathdata, numrecipients/1000)
+
+
+# simple regression without controls
+ff1 <- lm(DeathsnumD100000 ~ factor(expanf), data=deathdata)
+
+# simple regression with controls and FEs
+ff2 <- lm(DeathsnumD100000 ~ factor(expanf) + factor(iyear) + factor(state.x) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=deathdata)
+
+# simple regression with controls and FEs and STATE SPECIFIC LINEAR TIME TRENDS
+
+ff3 <- lm(DeathsnumD100000 ~ factor(expanf) + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=deathdata)
+
+ff4 <- lm(log(DeathsnumD100000) ~ factor(expanf) + factor(iyear) + factor(state.x) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=deathdata)
+
+# simple regression with controls and FEs and STATE SPECIFIC LINEAR TIME TRENDS
+
+ff5 <- lm(log(DeathsnumD100000) ~ factor(expanf) + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=deathdata)
+
+```
+
+
+```{r brfss reg output1, echo = FALSE}
+
+library(sandwich)
+library(lmtest)   # waldtest; see also coeftest.
+
+# Adjust standard errors
+cov1f         <- vcovHC(ff2, type = "HC1")
+cov2f         <- vcovHC(ff3, type = "HC1")
+robust_se1f    <- sqrt(diag(cov1f))
+robust_se2f    <- sqrt(diag(cov2f))
+
+#coeftest(lmAPI, vcov = vcovHC(lmAPI, "HC1"))
+
+# Adjust F statistic 
+#wald_results1 <- waldtest(a2, vcov = cov1)
+#wald_results2 <- waldtest(a3, vcov = cov2)
+
+# FOR PRESENTATION
+stargazer(ff2, ff3, ff4, ff5, type = "text", 
+          title="Regression Results: Deaths Related to Opioids",
+          align=TRUE,
+          dep.var.labels=c("Deaths","ln(Deaths)"),
+          covariate.labels=c("Medicaid Expansion"),
+          #se        = list(robust_se1f, robust_se2f),
+          omit.stat = c("f", "ser", "adj.rsq"), 
+          add.lines = list(c("Controls?", "yes", "yes","yes","yes"),
+                           c("State Fixed Effects?", "yes", "yes","yes","yes"),
+                           c("Year Fixed Effects?", "yes", "yes","yes","yes"),
+                           c("State Specific Linear Time Trends?", "no", "yes","no","yes"),
+                           c("Mean Deaths Related to Opioids","359","359","359","359")),
+          report=('vc*p'),
+          keep=c("expanf")) 
 
 
 
+stargazer(ff1, ff2, title="OLS Regression Results: Deaths", align=TRUE, dep.var.labels=c("Deaths related to opioids"), covariate.labels=c("Medicaid Expansion"), type="html", omit=c("sex","nummen","numwomen","orace2asian/p_islander","orace2black","orace2other","orace2white","educaelem","educahsgrad","educanoeduca/kinder","educasomecoll/tech","educasomehs","income210-14.9","income215-19.9","income220-24.9","income224-34.9","income235-49.9","income250-74.9","income275+","maritalmarried","maritalnevermarried","maritalseparated","maritalunmarriedcouple","maritalwidowed","employhomemaker","employnowork<1yr","employnowork>1yr","employretired","employselfemployed","employstudent","employunabletowork","Agecat25-29","Agecat30-34","Agecat35-39","Agecat40-44","Agecat45-49","Agecat50-54","Agecat55-59","Agecat60-64","Agecat65-69","Agecat70-74","Agecat75-79","Agecat80+","veteran", no.space=TRUE, add.lines = list(c("Controls?", "yes", "yes"), c("Fixed Effects?", "yes", "yes"), c("State Specific Trends?","no","yes")))))
 
-```{r bfss reg output2 with FE}
+```
 
-# regression with fixed effects
-# load needed package
+#### more
+
+```{r load data}
+
+load("P:\\Thesis\\statelevel9.rdata")
+
+```
+
+```{r load necessary libraries}
+
 library(lfe)
 
+```
 
-# make FE variables factor variables
-#brfssANDenroll$iyear <- as.factor(brfssANDenroll$iyear)
+```{r state specific linear time trends}
 
+# create time trend variable
+statelevel9$trend <- with(deathdata, ifelse(iyear==1999, 1
+                                         , ifelse(iyear==2000, 2
+                                         , ifelse(iyear==2001, 3
+                                         , ifelse(iyear==2003, 5
+                                         , ifelse(iyear==2004, 6
+                                         , ifelse(iyear==2005, 7
+                                         , ifelse(iyear==2006, 8
+                                         , ifelse(iyear==2007, 9
+                                         , ifelse(iyear==2008, 10
+                                         , ifelse(iyear==2009, 11
+                                         , ifelse(iyear==2010, 12
+                                         , ifelse(iyear==2011, 13
+                                         , ifelse(iyear==2012, 14
+                                         , ifelse(iyear==2013, 15
+                                         , ifelse(iyear==2014, 16, NA)))))))))))))))))
 
-# fixed effects regression without controls
-#a3 <- felm(hlthplan ~ factor(expanf) + G(x.state) + G(iyear), data=brfssANDenroll)
+#create state indicator variables
+statelevel9 <- cbind(statelevel9, dummy(statelevel9$state.x, sep = "_"))
 
+# change spaces to . in column names
+names(statelevel9) <- sub(" ", ".", names(statelevel9))
 
-# fixed effects regression with controls
+# create interaction terms
+statelevel9$nsslttala <- with(statelevel9, statelevel9_Alabama*trend)
+statelevel9$nsslttal <- with(statelevel9, statelevel9_Alaska*trend)
+statelevel9$nsslttar <- with(statelevel9, statelevel9_Arizona*trend)
+statelevel9$nsslttark <- with(statelevel9, statelevel9_Arkansas*trend)
+statelevel9$nsslttca <- with(statelevel9, statelevel9_California*trend)
+statelevel9$nsslttco <- with(statelevel9, statelevel9_Colorado*trend)
+statelevel9$nsslttcn <- with(statelevel9, statelevel9_Connecticut*trend)
+statelevel9$nsslttde <- with(statelevel9, statelevel9_Delaware*trend)
+statelevel9$nsslttdc <- with(statelevel9, statelevel9_District.of.Columbia*trend)
+statelevel9$nsslttfl <- with(statelevel9, statelevel9_Florida*trend)
+statelevel9$nsslttge <- with(statelevel9, statelevel9_Georgia*trend)
+statelevel9$nssltthi <- with(statelevel9, statelevel9_Hawaii*trend)
+statelevel9$nsslttid <- with(statelevel9, statelevel9_Idaho*trend)
+statelevel9$nsslttil <- with(statelevel9, statelevel9_Illinois*trend)
+statelevel9$nsslttin <- with(statelevel9, statelevel9_Indiana*trend)
+statelevel9$nsslttio <- with(statelevel9, statelevel9_Iowa*trend)
+statelevel9$nsslttkan <- with(statelevel9, statelevel9_Kansas*trend)
+statelevel9$nsslttakt <- with(statelevel9, statelevel9_Kentucky*trend)
+statelevel9$nsslttlo <- with(statelevel9, statelevel9_Louisiana*trend)
+statelevel9$nsslttma <- with(statelevel9, statelevel9_Maine*trend)
+statelevel9$nsslttmd <- with(statelevel9, statelevel9_Maryland*trend)
+statelevel9$nsslttmass <- with(statelevel9, statelevel9_Massachusetts*trend)
+statelevel9$nsslttmic <- with(statelevel9, statelevel9_Michigan*trend)
+statelevel9$nsslttmin <- with(statelevel9, statelevel9_Minnesota*trend)
+statelevel9$nsslttmis <- with(statelevel9, statelevel9_Mississippi*trend)
+statelevel9$nsslttmi <- with(statelevel9, statelevel9_Missouri*trend)
+statelevel9$nsslttmt <- with(statelevel9, statelevel9_Montana*trend)
+statelevel9$nsslttneb <- with(statelevel9, statelevel9_Nebraska*trend)
+statelevel9$nsslttnv <- with(statelevel9, statelevel9_Nevada*trend)
+statelevel9$nsslttnh <- with(statelevel9, statelevel9_New.Hampshire*trend)
+statelevel9$nsslttnj <- with(statelevel9, statelevel9_New.Jersey*trend)
+statelevel9$nsslttnm <- with(statelevel9, statelevel9_New.Mexico*trend)
+statelevel9$nsslttny <- with(statelevel9, statelevel9_New.York*trend)
+statelevel9$nsslttnc <- with(statelevel9, statelevel9_North.Carolina*trend)
+statelevel9$nsslttnd <- with(statelevel9, statelevel9_North.Dakota*trend)
+statelevel9$nsslttoh <- with(statelevel9, statelevel9_Ohio*trend)
+statelevel9$nsslttok <- with(statelevel9, statelevel9_Oklahoma*trend)
+statelevel9$nsslttor <- with(statelevel9, statelevel9_Oregon*trend)
+statelevel9$nsslttpa <- with(statelevel9, statelevel9_Pennsylvania*trend)
+statelevel9$nsslttri <- with(statelevel9, statelevel9_Rhode.Island*trend)
+statelevel9$nsslttsc <- with(statelevel9, statelevel9_South.Carolina*trend)
+statelevel9$nsslttsd <- with(statelevel9, statelevel9_South.Dakota*trend)
+statelevel9$nssltttn <- with(statelevel9, statelevel9_Tennessee*trend)
+statelevel9$nssltttx <- with(statelevel9, statelevel9_Texas*trend)
+statelevel9$nsslttut <- with(statelevel9, statelevel9_Utah*trend)
+statelevel9$nsslttver <- with(statelevel9, statelevel9_Vermont*trend)
+statelevel9$nsslttvi <- with(statelevel9, statelevel9_Virginia*trend)
+statelevel9$nsslttwa <- with(statelevel9, statelevel9_Washington*trend)
+statelevel9$nsslttwv <- with(statelevel9, statelevel9_West.Virginia*trend)
+statelevel9$nsslttwi <- with(statelevel9, statelevel9_Wisconsin*trend)
+statelevel9$nsslttwy <- with(statelevel9, statelevel9_Wyoming*trend)
 
-#a4 <- with(brfssANDenroll, felm(hlthplan ~ factor(expanf) + G(x.state) + G(iyear) + sex + nummen + numwomen + orace2 + educa + income2 + marital + employ + veteran + Agecat, data=brfssANDenroll))
 
 ```
 
 
+```{r}
 
-```{r brfss reg output2 with FE, echo=FALSE}
-
-#stargazer(a3, a4, type="text")
-
-                               ---
-                              title: "Untitled"
-                              author: "Dana George"
-                              date: "November 12, 2016"
-                              output: pdf_document
-                              ---
-
-
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-
-
-```{r state level}
-
-# load data
-deathdata <- read.csv("P:\\Thesis\\CDC\\death.data.csv") # - or -
-load("P:\\Thesis\\CDC\\death.data.rdata")
-load("P:\\Thesis\\cdc_enroll.rdata")
-spendingdata <- read.csv("P:\\Thesis\\Medicaid_enrollement_and_paymentsbystate_toR3.csv")
-unemploy <- read.csv("C:\\Users\\H682394\\employdata_toR.csv")
-educadata <- read.csv("C:/Users/H682394/educationdata.csv")
-
-
-
-
-# clean data frames
-
-enroll$NA. <- NULL
-enroll$NA..1 <- NULL
-enroll$NA..2 <- NULL
-enroll$NA..3 <- NULL
-
-
-
-# rename to be ready to merge
-names(enroll)[names(enroll)=="year"] <- "iyear"
-names(spendingdata)[names(spendingdata)=="year"] <- "iyear"
-
-
-library(plyr)
-spendingdata2 <- arrange(spendingdata, fips, iyear)
-deathdata2 <- arrange(deathdata, fips, iyear)
-unemploy2 <- arrange(unemploy, fips, iyear)
-educadata <- arrange(educadata, fips, iyear)
-
-names(deathdata2)[names(deathdata2)=="State"] <- "state"
-
-deathdata2$fips <- as.numeric(deathdata2$fips)
-spendingdata2$fips <- as.numeric(spendingdata2$fips)
-enroll$fips <- as.numeric(enroll$fips)
-
-deathdata2$iyear <- as.numeric(deathdata2$iyear)
-spendingdata2$iyear <- as.numeric(spendingdata2$iyear)
-enroll$iyear <- as.numeric(enroll$iyear)
-
-
-```
-
-
-
-```{r merge and clean}
-
-### MERGE TO STATE LEVEL - deathdata2, spendingdata2, enroll and unemploy2
-
-statelevel <- merge(spendingdata2, deathdata2, by=c("fips", "iyear", "state"), all=TRUE)
-statelevel2 <- merge(statelevel, enroll, by=c("fips", "iyear", "state"), all=TRUE)
-statelevel2.5 <- merge(statelevel2, educadata, by=c("fips", "iyear"), all=TRUE)
-statelevel3 <- merge(statelevel2.5, unemploy2, by=c("fips", "iyear"), all=TRUE)
-
-# clean
-statelevel3$fips <- as.factor(statelevel3$fips)
-statelevel3$expan <- as.factor(statelevel3$expan)
-statelevel3$iyear <- as.factor(statelevel3$iyear)
-
-statelevel3$numrep_percap <- with(statelevel3, numrecipients/Population)
-statelevel3$Deaths_percap <- with(statelevel3, Deaths/Population)
-
-# create 14_15 variable for POST
-
-statelevel3$y14_15 <- with(statelevel3, ifelse(iyear==2014, 1, ifelse(iyear==2015, 1, ifelse(iyear==2016, 1, 0))))
-
-```
-
-
-
-
-
-```{r statelevel3 reg output 1}
-library(lfe)
-
-# simple regression without controls
-b1 <- lm(Deaths ~ numrecipients, data=statelevel3)
-
-# simple regression with controls
-b2 <- lm(Deaths ~ numrecipients + Population + unemploy, data=statelevel3)
-
-b3 <- felm(Deaths ~ numrecipients + Population + unemploy + G(fips) + G(iyear), data=statelevel3)
-
-```
-
-```{r other regress}
-
-# simple regression without controls
-c1 <- lm(Deaths ~ numrep_percap, data=statelevel3)
-
-# simple regression with controls
-c2 <- lm(Deaths ~ numrep_percap + Population + unemploy, data=statelevel3)
-
-c3 <- felm(Deaths ~ numrep_percap + Population + unemploy + G(fips) + G(iyear), data=statelevel3)
-
-
+statelevel9$numrecipientsD10000 <- with(statelevel9, numrecipients/10000)
+statelevel9$DeathsnumD100000 <- with(statelevel9, Deathsnum/100000)
 
 
 # simple regression without controls
-d1 <- lm(Deaths ~ expan, data=statelevel3)
+n1 <- lm(DeathsnumD100000 ~ numrecipientsD10000, data=statelevel9)
 
 # simple regression with controls
-d2 <- lm(Deaths ~ expan + Population + unemploy, data=statelevel3)
+n2 <- lm(DeathsnumD100000 ~ numrecipientsD10000 + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
 
-d3 <- felm(Deaths ~ expan + Population + unemploy + G(fips) + G(iyear), data=statelevel3)
+n3 <- felm(DeathsnumD100000 ~ numrecipientsD10000 + factor(fips) + factor(iyear), data=statelevel9)
+
+n4 <- lm(DeathsnumD100000 ~ numrecipientsD10000 + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+
+n4 <- lm(DeathsnumD100000 ~ numrecipientsD10000 + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+
+n5 <- lm(DeathsnumD100000 ~ numrecipientsD10000 + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+n6 <- lm(log(DeathsnumD100000) ~ numrecipientsD10000 + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9) 
+
+
+n7 <- lm(log(DeathsnumD100000) ~ numrecipientsD10000 + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+```
+
+```{r n1, n2, n3 stargazer}
+
+library(sandwich)
+library(lmtest)   # waldtest; see also coeftest.
+
+# Adjust standard errors
+cov1n         <- vcovHC(n4, type = "HC1")
+cov2n         <- vcovHC(n5, type = "HC1")
+robust_se1n    <- sqrt(diag(cov1n))
+robust_se2n    <- sqrt(diag(cov2n))
+
+#coeftest(lmAPI, vcov = vcovHC(lmAPI, "HC1"))
+
+# Adjust F statistic 
+#wald_results1 <- waldtest(a2, vcov = cov1)
+#wald_results2 <- waldtest(a3, vcov = cov2)
+
+# FOR PRESENTATION
+stargazer(n4, n5, n6, n7, type = "text", 
+          title="Regression Results: Deaths Related to Opioids",
+          align=TRUE,
+          dep.var.labels=c("Deaths","ln(Deaths)"),
+          covariate.labels=c("Number of Recipients Of Medicaid"),
+          #se        = list(robust_se1n, robust_se2n),
+          omit.stat = c("f", "ser","adj.rsq"), 
+          add.lines = list(c("Controls?", "yes", "yes", "yes", "yes"),
+                           c("State Fixed Effects?", "yes", "yes", "yes", "yes"),
+                           c("Year Fixed Effects?", "yes", "yes", "yes", "yes"),
+                           c("State Specific Linear Time Trends?", "no", "yes", "no", "yes"),
+                           c("Mean Deaths Related to Opioids","359","359","359","359")),
+          report=('vc*p'),
+          keep=c("numrecipients"))
+
+# FOR PAPER
+stargazer(n1, n2, n3, n4, type="html",column.labels = c("OLS", "OLS With Controls","Fixed Effects","Fixed Effects and Controls"), model.names = F, notes ="*Sex Ratio equals the number of males per 100 females.", report=('vc*p'), title="n1,n2,n3,n4", align=TRUE, dep.var.labels = c("Deaths related to opioids"), covariate.labels=c("Number of Recipients of Medicaid", "Population","Unemployment","Median Income", "Median Age","Sex Ratio*","Percent White","Percent Black","No HS Degree","HS Graduate","College Graduate"))
+
+# FOR PRESENTATION - change to robust standard errors
+stargazer(n1, n2, n3, n4, type="html",column.labels = c("OLS", "OLS With Controls","Fixed Effects","Fixed Effects and Controls"), model.names = F, notes =c("Controls not shown are Population, Unemployment, Median Income, Median Age, Sex Ratio*, Percent White, Percent Black, No HS Degree, HS Graduate, College Graduate","Year and State Fixed Effects are included","*Sex Ratio equals the number of males per 100 females."), report=('vc*p'), title="n1,n2,n3,n4", align=TRUE, dep.var.labels = c("Deaths related to opioids"), covariate.labels=c("Number of Recipients of Medicaid"), omit=c("Population","unemploy","medianincome", "medianage","sexratio","percentwhite","percentblack","noHSdegree","hsgrad","collegegrad"))
 
 ```
 
 
-
-```{r mas regressions}
-
-# simple regression without controls
-e1 <- lm(Deaths ~ numrecipients, data=statelevel3)
-
-# simple regression with controls
-e2 <- lm(Deaths ~ numrecipients + expan + Population + unemploy, data=statelevel3)
-
-e3 <- felm(Deaths ~ numrecipients + expan + Population + unemploy + G(fips) + G(iyear), data=statelevel3)
-
-e4 <- felm(Deaths ~ numrecipients + expan + Population + unemploy + childrenLT15 + LT9thgrade
-           + X9T12nodiploma + HsgradGED + somecoll + associate + master + profdegree
-           + doctorate + G(fips) + G(iyear), data = statelevel3)
-```
-
-
-
-
-```{r regression output}
-
-stargazer(e1, e2, e3, e4, title="Regression Results - State Level", align=TRUE, dep.var.labels=c("Deaths"), covariate.labels=c("Number of Recipients", "Medicaid Expansion"), type="text", omit=c("Population","unemploy","childrenLT15","LT9thgrade","X9T12nodiploma","HsgradGED","somecoll","associate","master","profdegree","doctorate"), no.space=TRUE)
-
-```
-
-Regression Results - State Level
-=============================================================================================================
-                                                       Dependent variable:                                   
-                     ----------------------------------------------------------------------------------------
-                                                              Deaths                                         
-                                             OLS                                         felm                
-                                (1)                       (2)                   (3)                (4)       
--------------------------------------------------------------------------------------------------------------
-Number of Recipients         0.0002***                 0.00003**             0.0002***          0.0002***    
-                             (0.00000)                 (0.00001)             (0.00002)          (0.00003)
-                             
-Medicaid Expansion                                     269.527***              11.933            12.771      
-                                                        (36.655)              (33.965)          (30.855)
-                                                        
-Constant                     136.749***               -116.380***                                            
-                              (9.396)                   (21.661)                                             
--------------------------------------------------------------------------------------------------------------
-Observations                    765                       765                   765                612       
-R2                             0.703                     0.777                 0.923              0.948      
-Adjusted R2                    0.703                     0.775                 0.916              0.941      
-Residual Std. Error      213.100 (df = 763)        185.178 (df = 760)    113.483 (df = 697) 99.110 (df = 538)
-F Statistic          1,805.182*** (df = 1; 763) 660.272*** (df = 4; 760)                                     
-=============================================================================================================
-Note:                                                                             *p<0.1; **p<0.05; ***p<0.01
-
-# Therefore
-a 50 person increase in medicaid recipients is associated with 1 death due to opioids.
-
-
-
-
-
-```{r mas regressions2}
-
-# simple regression without controls
-f1 <- lm(Deaths ~ avgmedicaiddoll, data=statelevel3)
-
-# simple regression with controls
-f2 <- lm(Deaths ~ avgmedicaiddoll + Population + unemploy, data=statelevel3)
-
-f3 <- felm(Deaths ~ avgmedicaiddoll + Population + unemploy + G(fips) + G(iyear), data=statelevel3)
-
-f4 <- felm(Deaths ~ avgmedicaiddoll + Population + unemploy + childrenLT15 + LT9thgrade
-           + X9T12nodiploma + HsgradGED + somecoll + associate + bachelor + master + profdegree
-           + doctorate + G(fips) + G(iyear), data=statelevel3)
-
-```
-
-
-
-
-
-```{r > percentile}
-
-# create variables
-
-quantile(statelevel3$numrep_percap, c(.2, .50, .75), na.rm=TRUE) 
-
-statelevel3$GT75_numrep_percap <- with(statelevel3, ifelse(numrep_percap >= .21, 1, 0))
-statelevel3$GT50_numrep_percap <- with(statelevel3, ifelse(numrep_percap >= .17, 1, 0))
-statelevel3$GT20_numrep_percap <- with(statelevel3, ifelse(numrep_percap >= .13, 1, 0))
-
-
-statelevel3$GT75_numrep_percap <- as.factor(statelevel3$GT75_numrep_percap)
-
-statelevel3$GT50_numrep_percap <- as.factor(statelevel3$GT50_numrep_percap)
-
-statelevel3$GT20_numrep_percap <- as.factor(statelevel3$GT20_numrep_percap)
-
-
-```
-
-
-
-
-# statelevel3$numrep_percap
-
-      20%       50%       75% 
-0.1320792 0.1775162 0.2199526 
-
-```{r percentile regressions w/o FEs}
-
-# simple regression without controls
-f1 <- lm(Deaths ~ GT75_numrep_percap, data=statelevel3)
-
-# simple regression with controls
-f2 <- lm(Deaths ~ GT75_numrep_percap + Population + unemploy, data=statelevel3)
-
-f3 <- lm(Deaths ~ GT75_numrep_percap + Population + unemploy + fips + iyear, data=statelevel3)
-
-
-# simple regression without controls
-g1 <- lm(Deaths ~ GT50_numrep_percap, data=statelevel3)
-
-# simple regression with controls
-g2 <- lm(Deaths ~ GT50_numrep_percap + Population + unemploy, data=statelevel3)
-
-g3 <- lm(Deaths ~ GT50_numrep_percap + Population + unemploy + fips + iyear, data=statelevel3)
-
-
-
-
-
-
-# simple regression without controls
-h1 <- lm(Deaths ~ GT20_numrep_percap, data=statelevel3)
-
-# simple regression with controls
-h2 <- lm(Deaths ~ GT20_numrep_percap + Population + unemploy, data=statelevel3)
-
-h3 <- lm(Deaths ~ GT20_numrep_percap + Population + unemploy + fips + iyear, data=statelevel3)
-
-```
 
