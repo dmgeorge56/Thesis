@@ -42,3 +42,142 @@ brfssANDenroll <- as.data.frame(brfssANDenroll)
 load("P:\\Thesis\\statelevel9.rdata")
 
 ```
+---
+title: "StateLevel6"
+author: "Dana George"
+date: "November 23, 2016"
+output: html_document
+---
+
+```{r load data}
+
+population1516 <- read.csv("P:\\Thesis\\pop20152016data.csv")
+
+population1516$iyear <- as.factor(population1516$iyear)
+population1516$fips <- as.factor(population1516$fips)
+
+load("P:\\Thesis\\statelevel3.rdata")
+
+statelevel4 <- merge(statelevel3, population1516, by=c("fips","iyear"), all=TRUE)
+
+# Clean new data frame
+statelevel4$Population.x <- with(statelevel4, ifelse(iyear=="2015" | iyear=="2016", Population.y, Population.x))
+
+statelevel4$Population.y <- NULL
+statelevel4$numrecipients.y <- NULL
+statelevel4$state.y <- NULL
+
+
+names(statelevel4)[names(statelevel4)=="state.x"] <- "state"
+names(statelevel4)[names(statelevel4)=="numrecipients.x"] <- "numrecipients"
+names(statelevel4)[names(statelevel4)=="Population.x"] <- "Population"
+
+save(statelevel4, file="P:\\Thesis\\statelevel4.rdata")
+
+
+```
+
+```{r load data}
+
+statelevel5 <- read.csv("P:\\Thesis\\statelevel4.csv")
+
+```
+
+```{r clean data}
+
+statelevel5$iyear <- as.factor(statelevel5$iyear)
+statelevel5$fips <- as.factor(statelevel5$fips)
+
+statelevel5$numrep_percap <- NULL
+statelevel5$Deaths_percap <- NULL
+statelevel5$GT75_numrep_percap <- NULL
+statelevel5$GT50_numrep_percap <- NULL
+statelevel5$GT20_numrep_percap <- NULL
+statelevel5$expanXnumrecip <- NULL
+statelevel5$expanXnumrecipX1415 <- NULL
+
+statelevel5$numrecipients_percap <- with(statelevel5, numrecipients/Population)
+statelevel5$numdeaths_percap <- with(statelevel5, Deathsnum/Population)
+
+```
+
+```{r add median income data}
+
+# add more demographic data
+incomedata <- read.csv("P:\\Thesis\\incomedata.census.csv")
+
+inc <- melt(incomedata, id.vars=c("fips"))
+# remove x from iyear X1999 ---> 1999
+inc$variable <- substring(inc$variable, 2)
+names(inc)[names(inc)=="variable"] <- "iyear"
+names(inc)[names(inc)=="value"] <- "medianincome"
+
+statelevel6 <- merge(statelevel5, inc, by=c("fips", "iyear"), all=TRUE)
+save(statelevel6, file="P:\\Thesis\\statelevel6.rdata")
+
+
+```
+
+```{r add sex and age data}
+# 2005-2015
+sexagechilddep <- read.csv("P:\\Thesis\\gender_agedata_census.csv")
+
+```
+
+```{r merge and clean}
+
+statelevel7 <- merge(statelevel6, sexagechilddep, by=c("fips","iyear"), all=TRUE)
+
+statelevel7$state.y <- NULL
+names(statelevel7)[names(statelevel7)=="state.x"] <- "state"
+
+```
+
+```{r add race data} 
+# 2005-2015
+whiteblackpercents <- read.csv("P:\\Thesis\\percentwhite_black_census.csv")
+
+```
+
+```{r merge race data}
+
+statelevel8 <- merge(statelevel7, whiteblackpercents, by=c("fips","iyear"), all=TRUE)
+
+```
+
+```{r load education data}
+
+educationdata <- read.csv("P:\\Thesis\\educationdata_census.csv")
+
+```
+
+```{r prep statelevel8 for new education data}
+
+statelevel8$educatotal <- NULL
+statelevel8$childrenLT15 <- NULL
+statelevel8$LT9thgrade <- NULL
+statelevel8$X9T12nodiploma <- NULL
+statelevel8$HsgradGED <- NULL
+statelevel8$somecoll <- NULL
+statelevel8$associate <- NULL
+statelevel8$bachelor <- NULL
+statelevel8$master <- NULL
+statelevel8$profdegree <- NULL
+statelevel8$doctorate <- NULL
+statelevel8$state.y <- NULL
+
+```
+
+```{r merge education data}
+
+statelevel9 <- merge(statelevel8, educationdata, by=c("fips","iyear"), all=TRUE)
+
+```
+
+```{r save statelevel9}
+
+save(statelevel9, file="P:\\Thesis\\statelevel9.rdata")
+
+```
+
+
