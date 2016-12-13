@@ -1,0 +1,388 @@
+---
+title: "IntensityTT thesis"
+author: "Dana George"
+date: "December 10, 2016"
+output: html_document
+---
+
+```{r load data}
+
+load("P:\\Thesis\\statelevel9.rdata")
+
+```
+
+```{r find percentiles}
+
+quantile(statelevel9$numrecipients_percap, c(.2, .50, .75), na.rm=TRUE)
+
+```
+
+quantile(statelevel9$numrecipients_percap, c(.2, .50, .75), na.rm=TRUE)
+      20%       50%       75% 
+0.1335798 0.1807418 0.2267742 
+
+```{r create percentile groups}
+
+statelevel9$above75 <- with(statelevel9, ifelse(numrecipients_percap >= .22 & iyear == "2012", 1, 0))
+
+statelevel9$btwn50and75 <- with(statelevel9, ifelse(numrecipients_percap >= .18 & numrecipients_percap <.22 & iyear=="2012", 1, 0))
+
+statelevel9$below50 <- with(statelevel9, ifelse(numrecipients_percap <.18 & iyear== "2012", 1, 0))
+
+```
+
+```{r create new dataframes for each percentile group}
+
+#stateabove75 <- with(statelevel9, statelevel9[ which(above75 == 1), ])
+
+#statebtwn50and75 <- with(statelevel9, statelevel9[ which(btwn50and75 == 1), ])
+
+#statebelow50 <- with(statelevel9, statelevel9[ which(below50 == 1), ])
+
+# create interaction terms
+
+statelevel9$interactabove75 <- with(statelevel9, numrecipientsD10000*above75)
+
+statelevel9$interactbtwn50and75 <- with(statelevel9, numrecipientsD10000*btwn50and75)
+
+statelevel9$interactbelow50 <- with(statelevel9, numrecipientsD10000*below50)
+
+
+```
+
+```{r regressions least effected}
+# Do Opioid Related Death Rates Change When Medicaid Recipient Rates Change?
+
+ii4 <- lm(DeathsnumD100000 ~ interactabove75 + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+
+ii5 <- lm(DeathsnumD100000 ~ interactabove75 + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+ii6 <- lm(log(DeathsnumD100000) ~ interactabove75 + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9) 
+
+
+ii7 <- lm(log(DeathsnumD100000) ~ interactabove75 + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+```
+
+```{r stargazer}
+
+stargazer(ii4, ii5, ii6, ii7, type = "text", 
+           title="Regression Results: Deaths Related to Opioids, Least Affected",
+           align=TRUE,
+           dep.var.labels=c("Deaths","ln(Deaths)"),
+           covariate.labels=c("Number of Recipients Of Medicaid"),
+           #se        = list(robust_se1n, robust_se2n),
+           omit.stat = c("f", "ser","adj.rsq"), 
+           add.lines = list(c("Controls?", "yes", "yes", "yes", "yes"),
+                            c("State Fixed Effects?", "yes", "yes", "yes", "yes"),
+                            c("Year Fixed Effects?", "yes", "yes", "yes", "yes"),
+                            c("State Specific Linear Time Trends?", "no", "yes", "no", "yes"),
+                            c("Mean Deaths Related to Opioids","359","359","359","359")),
+           report=('vc*p'),
+           keep=c("interactabove75"))
+
+```
+
+```{r regressions medium effeced}
+
+jj4 <- lm(DeathsnumD100000 ~ interactbtwn50and75 + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+
+jj5 <- lm(DeathsnumD100000 ~ interactbtwn50and75 + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+jj6 <- lm(log(DeathsnumD100000) ~ interactbtwn50and75 + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9) 
+
+
+jj7 <- lm(log(DeathsnumD100000) ~ interactbtwn50and75 + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+```
+
+```{r stargazer}
+
+stargazer(jj4, jj5, jj6, jj7, type = "html", 
+           title="Regression Results: Deaths Related to Opioids, Medium Affected",
+           align=TRUE,
+           dep.var.labels=c("Deaths","ln(Deaths)"),
+           covariate.labels=c("Number of Recipients Of Medicaid"),
+           #se        = list(robust_se1n, robust_se2n),
+           omit.stat = c("f", "ser","adj.rsq"), 
+           add.lines = list(c("Controls?", "yes", "yes", "yes", "yes"),
+                            c("State Fixed Effects?", "yes", "yes", "yes", "yes"),
+                            c("Year Fixed Effects?", "yes", "yes", "yes", "yes"),
+                            c("State Specific Linear Time Trends?", "no", "yes", "no", "yes"),
+                            c("Mean Deaths Related to Opioids","359","359","359","359")),
+           report=('vc*p'),
+           keep=c("interactbtwn50and75"))
+
+```
+
+
+```{r regressions most effeced}
+
+kk4 <- lm(DeathsnumD100000 ~ interactbelow50 + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+
+kk5 <- lm(DeathsnumD100000 ~ interactbelow50 + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+kk6 <- lm(log(DeathsnumD100000) ~ interactbelow50 + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9) 
+
+
+kk7 <- lm(log(DeathsnumD100000) ~ interactbelow50 + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+```
+
+```{r stargazer}
+
+stargazer(kk4, kk5, kk6, kk7, type = "html", 
+           title="Regression Results: Deaths Related to Opioids, Most Affected",
+           align=TRUE,
+           dep.var.labels=c("Deaths","ln(Deaths)"),
+           covariate.labels=c("Number of Recipients Of Medicaid"),
+           #se        = list(robust_se1n, robust_se2n),
+           omit.stat = c("f", "ser","adj.rsq"), 
+           add.lines = list(c("Controls?", "yes", "yes", "yes", "yes"),
+                            c("State Fixed Effects?", "yes", "yes", "yes", "yes"),
+                            c("Year Fixed Effects?", "yes", "yes", "yes", "yes"),
+                            c("State Specific Linear Time Trends?", "no", "yes", "no", "yes"),
+                            c("Mean Deaths Related to Opioids","359","359","359","359")),
+           report=('vc*p'),
+           keep=c("interactbelow50"))
+
+```
+
+```{r stargazer all together now}
+
+stargazer(ii4, ii5, ii6, ii7, jj4, jj5, jj6, jj7, kk4, kk5, kk6, kk7, type = "html", 
+           title="Regression Results: Deaths Related to Opioids",
+           align=TRUE,
+           dep.var.labels=c("Deaths Small","ln(Deaths) Small","Deaths Medium","ln(Deaths) Medium", "Deaths Large","ln(Deaths) Large"),
+           covariate.labels=c("Number of Recipients Of Medicaid","Number of Recipients Of Medicaid","Number of Recipients Of Medicaid"),
+           #se        = list(robust_se1n, robust_se2n),
+           omit.stat = c("f", "ser","adj.rsq"), 
+           add.lines = list(c("Controls?", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes"),
+                            c("State Fixed Effects?", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes"),
+                            c("Year Fixed Effects?", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes"),
+                            c("State Specific Linear Time Trends?", "no", "yes", "no", "yes", "no", "yes", "no", "yes", "no", "yes", "no", "yes"),
+                            c("Mean Deaths Related to Opioids","359","359","359","359","359","359","359","359","359","359","359","359")),
+           report=('vc*p'),
+           keep=c("interactbelow50", "interactbtwn50and75","interactabove75"))
+
+```
+
+## BEGIN PERCENTILES DEMOGRAPHICS
+
+```{r find percentiles}
+
+quantile(statelevel9$medianincome, c(.2, .50, .75), na.rm=TRUE)
+
+```
+
+quantile(statelevel9$medianincome, c(.2, .50, .75), na.rm=TRUE)
+    20%     50%     75% 
+40794.2 47091.0 53755.0 
+
+```{r create percentile groups}
+
+statelevel9$above75inc <- with(statelevel9, ifelse(medianincome >= 53755 & iyear == "2012", 1, 0))
+
+statelevel9$btwn50and75inc <- with(statelevel9, ifelse(medianincome >= 47091 & medianincome < 53755 & iyear=="2012", 1, 0))
+
+statelevel9$below50inc <- with(statelevel9, ifelse(medianincome < 47091 & iyear== "2012", 1, 0))
+
+```
+
+```{r create new dataframes for each percentile group}
+
+#stateabove75 <- with(statelevel9, statelevel9[ which(above75 == 1), ])
+
+#statebtwn50and75 <- with(statelevel9, statelevel9[ which(btwn50and75 == 1), ])
+
+#statebelow50 <- with(statelevel9, statelevel9[ which(below50 == 1), ])
+
+# create interaction terms
+
+statelevel9$interactabove75inc <- with(statelevel9, numrecipientsD10000*above75inc)
+
+statelevel9$interactbtwn50and75inc <- with(statelevel9, numrecipientsD10000*btwn50and75inc)
+
+statelevel9$interactbelow50inc <- with(statelevel9, numrecipientsD10000*below50inc)
+
+```
+
+```{r regressions least effected}
+
+# Do Opioid Related Death Rates Change When Medicaid Recipient Rates Change? 
+
+# INCOME
+
+ll4 <- lm(DeathsnumD100000 ~ interactabove75inc + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+
+ll5 <- lm(DeathsnumD100000 ~ interactabove75inc + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+ll6 <- lm(log(DeathsnumD100000) ~ interactabove75inc + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9) 
+
+
+ll7 <- lm(log(DeathsnumD100000) ~ interactabove75inc + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+```
+
+```{r regressions medium effeced} 
+
+# INCOME
+
+mm4 <- lm(DeathsnumD100000 ~ interactbtwn50and75inc + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+
+mm5 <- lm(DeathsnumD100000 ~ interactbtwn50and75inc + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+mm6 <- lm(log(DeathsnumD100000) ~ interactbtwn50and75inc + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9) 
+
+
+mm7 <- lm(log(DeathsnumD100000) ~ interactbtwn50and75inc + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+```
+
+```{r regressions most effeced}
+# INCOME
+
+nn4 <- lm(DeathsnumD100000 ~ interactbelow50inc + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+
+nn5 <- lm(DeathsnumD100000 ~ interactbelow50inc + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+nn6 <- lm(log(DeathsnumD100000) ~ interactbelow50inc + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9) 
+
+
+nn7 <- lm(log(DeathsnumD100000) ~ interactbelow50inc + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+```
+
+```{r stargazer all together now, INCOME}
+
+stargazer(ll4, ll5, ll6, ll7, mm4, mm5, mm6, mm7, nn4, nn5, nn6, nn7, type = "html", 
+           title="Regression Results: Deaths Related to Opioids, Income",
+           align=TRUE,
+           dep.var.labels=c("Deaths High Income","ln(Deaths) High Income","Deaths Medium Income","ln(Deaths) Medium Income", "Deaths Low Income","ln(Deaths) Low Income"),
+           covariate.labels=c("Number of Recipients Of Medicaid","Number of Recipients Of Medicaid","Number of Recipients Of Medicaid"),
+           #se        = list(robust_se1n, robust_se2n),
+           omit.stat = c("f", "ser","adj.rsq"), 
+           add.lines = list(c("Controls?", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes"),
+                            c("State Fixed Effects?", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes"),
+                            c("Year Fixed Effects?", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes"),
+                            c("State Specific Linear Time Trends?", "no", "yes", "no", "yes", "no", "yes", "no", "yes", "no", "yes", "no", "yes"),
+                            c("Mean Deaths Related to Opioids","359","359","359","359","359","359","359","359","359","359","359","359")),
+           report=('vc*p'),
+           keep=c("interactbelow50inc", "interactbtwn50and75inc","interactabove75inc"))
+
+```
+
+## RACE
+
+```{r find percentiles}
+
+quantile(statelevel9$percentwhite, c(.2, .50, .75), na.rm=TRUE)
+
+```
+
+quantile(statelevel9$percentwhite, c(.2, .50, .75), na.rm=TRUE)
+ 20%  50%  75% 
+0.68 0.79 0.87 
+
+```{r create percentile groups}
+
+statelevel9$above75white <- with(statelevel9, ifelse(percentwhite >= 87 & iyear == "2012", 1, 0))
+
+statelevel9$btwn50and75white <- with(statelevel9, ifelse(percentwhite >= 79 & percentwhite < 87 & iyear=="2012", 1, 0))
+
+statelevel9$below50white <- with(statelevel9, ifelse(percentwhite < 79 & iyear== "2012", 1, 0))
+
+```
+
+```{r create new dataframes for each percentile group}
+
+#stateabove75 <- with(statelevel9, statelevel9[ which(above75 == 1), ])
+
+#statebtwn50and75 <- with(statelevel9, statelevel9[ which(btwn50and75 == 1), ])
+
+#statebelow50 <- with(statelevel9, statelevel9[ which(below50 == 1), ])
+
+# create interaction terms
+
+statelevel9$interactabove75white <- with(statelevel9, numrecipientsD10000*above75white)
+
+statelevel9$interactbtwn50and75white <- with(statelevel9, numrecipientsD10000*btwn50and75white)
+
+statelevel9$interactbelow50white <- with(statelevel9, numrecipientsD10000*below50white)
+
+```
+
+```{r regressions least effected}
+
+# Do Opioid Related Death Rates Change When Medicaid Recipient Rates Change? 
+
+# PERCENT WHITE
+
+oo4 <- lm(DeathsnumD100000 ~ interactabove75white + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+
+oo5 <- lm(DeathsnumD100000 ~ interactabove75white + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+oo6 <- lm(log(DeathsnumD100000) ~ interactabove75white + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9) 
+
+
+oo7 <- lm(log(DeathsnumD100000) ~ interactabove75white + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+```
+
+```{r regressions medium effeced} 
+
+# INCOME
+
+pp4 <- lm(DeathsnumD100000 ~ interactbtwn50and75white + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+
+pp5 <- lm(DeathsnumD100000 ~ interactbtwn50and75white + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+pp6 <- lm(log(DeathsnumD100000) ~ interactbtwn50and75white + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9) 
+
+
+pp7 <- lm(log(DeathsnumD100000) ~ interactbtwn50and75white + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+```
+
+```{r regressions most effeced}
+# INCOME
+
+qq4 <- lm(DeathsnumD100000 ~ interactbelow50white + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+
+qq5 <- lm(DeathsnumD100000 ~ interactbelow50white + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+qq6 <- lm(log(DeathsnumD100000) ~ interactbelow50white + factor(fips) + factor(iyear) + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9) 
+
+
+qq7 <- lm(log(DeathsnumD100000) ~ interactbelow50white + factor(iyear) + factor(state.x) + nsslttala + nsslttal + nsslttar + nsslttark + nsslttca + nsslttco + nsslttcn + nsslttde + nsslttfl + nsslttge + nssltthi + nsslttid + nsslttin + nsslttio + nsslttil + nsslttkan + nsslttakt + nsslttlo + nsslttma + nsslttmd + nsslttmass + nsslttmic + nsslttmin + nsslttmis + nsslttmi + nsslttmt + nsslttneb + nsslttnv + nsslttnh + nsslttnj + nsslttnm + nsslttnc + nsslttnd + nsslttoh + nsslttok + nsslttor + nsslttpa + nsslttri + nsslttsc + nsslttsd + nssltttn + nssltttx + nsslttut + nsslttver + nsslttvi + nsslttwa + nsslttwv + nsslttwi + nsslttwy + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel9)
+
+```
+
+```{r stargazer all together now, RACE}
+
+stargazer(qq4, qq5, qq6, qq7, type = "html", 
+           title="Regression Results: Deaths Related to Opioids, Race",
+           align=TRUE,
+           dep.var.labels=c("Deaths Low % White","ln(Deaths) Low % White"),
+           covariate.labels=c("Number of Recipients Of Medicaid","Number of Recipients Of Medicaid","Number of Recipients Of Medicaid"),
+           #se        = list(robust_se1n, robust_se2n),
+           omit.stat = c("f", "ser","adj.rsq"), 
+           add.lines = list(c("Controls?", "yes", "yes", "yes", "yes"),
+                            c("State Fixed Effects?", "yes", "yes", "yes", "yes"),
+                            c("Year Fixed Effects?", "yes", "yes", "yes", "yes"),
+                            c("State Specific Linear Time Trends?", "no", "yes", "no", "yes"),
+                            c("Mean Deaths Related to Opioids","359","359","359","359")),
+           report=('vc*p'),
+           keep=c("interactbelow50white"))
+
+```
+
