@@ -1,0 +1,284 @@
+
+---
+title: "DeathLineGraphs"
+author: "Dana George"
+date: "November 25, 2016"
+output: html_document
+---
+
+# Trend graphs for Deaths
+```{r load data}
+load("P:\\Thesis\\statelevel5.rdata")
+
+```
+
+```{r clean data}
+
+statelevel5$fipsnum <- as.numeric(as.character(statelevel5$fips))
+
+expanstates <- with(statelevel5, statelevel5[ which(fips == 2|fips == 4|fips == 5|fips == 6|fips == 8|fips == 9|fips == 10|fips == 11|fips == 15|fips == 17|fips == 18|fips == 19|fips == 21|fips == 22|fips == 24|fips == 25|fips == 26|fips == 27|fips == 30|fips == 32|fips == 33|fips == 34|fips == 35|fips == 36|fips == 38|fips == 39|fips == 41|fips == 42|fips == 44|fips == 50|fips == 53|fips == 54), ])
+
+expanstates <- as.data.frame(expanstates)
+
+
+nonexpanstates <- with(statelevel5, statelevel5[ which(fips == 1|fips ==12|fips ==13|fips ==16|fips ==20|fips ==23|fips ==28|fips ==29|fips ==31|fips ==37|fips ==40|fips ==45|fips ==46|fips ==47|fips ==48|fips ==49|fips ==51|fips ==55|fips ==56), ])
+
+nonexpanstates <- as.data.frame(nonexpanstates)
+
+```
+
+
+```{r deaths trend lines}
+
+# find averages per year for expansion states and non expansion states and all of the US
+
+aggexpandeaths <- aggregate(expanstates[, 23], list(expanstates$iyear), mean, na.rm = TRUE, na.action = NULL)
+aggexpandeaths$statetype <- rep("Expansion States")
+aggexpandeaths$statetype2 <- rep("ES")
+
+
+aggnonexpandeaths <- aggregate(nonexpanstates[, 23], list(nonexpanstates$iyear), mean, na.rm = TRUE, na.action = NULL)
+aggnonexpandeaths$statetype <- rep("Non-Expansion States")
+aggnonexpandeaths$statetype2 <- rep("NES")
+
+unitedstatesdeaths <- aggregate(statelevel5[, 23], list(statelevel5$iyear), mean, na.rm = TRUE, na.action = NULL)
+unitedstatesdeaths$statetype <- rep("United States")
+unitedstatesdeaths$statetype2 <- rep("US")
+
+# merge two mean datasets together
+
+linegraphsdeaths <- rbind(aggexpandeaths, aggnonexpandeaths, unitedstatesdeaths)
+
+names(linegraphsdeaths) <- c("iyear", "Deathsnum", "statetype","statetype2")
+
+linegraphsdeaths2 <- linegraphsdeaths[!(linegraphsdeaths$iyear=="2015" | linegraphsdeaths$iyear=="2016"),]
+
+
+```
+
+## Create Line Graphs
+```{r create line graph}
+library(directlabels)
+library(grid)
+
+lineplotsdeaths <- ggplot(data=na.omit(linegraphsdeaths2), aes(x=iyear, y=Deathsnum, colour=statetype)) + 
+    #geom_point(size=2) +   
+    geom_text(aes(label=text, family="Times")) +
+    geom_ribbon(aes(ymin = Deathsnum - 5, ymax = Deathsnum + 5), fill = "lightgrey") +
+    geom_line(size=1, aes(group=statetype)) + 
+    geom_dl(aes(label = statetype), method = list(dl.trans(x = x + 0.2), "last.points", cex = 0.8)) +
+    geom_dl(aes(label = statetype2), method = list(dl.trans(x = x - 0.2), "first.points", cex = 0.8)) +
+    aes(colour=factor(statetype)) +
+    #ggtitle(unique(x$question.1)) +
+    #theme(plot.title=element_text(margin = margin(-10,1,10,1))) +
+    theme(legend.position="right") + theme(legend.text=element_text(size=10)) +
+    labs(y="Average Deaths Related to Opioids") + 
+    labs(x="") +
+    #theme(axis.title.y=element_blank()) +
+    #scale_y_continuous(expand=c(0,0),limits=c(0,1), 
+    #                   minor_breaks = seq(.1, 1, .1), breaks=seq(0,1,.1), labels = scales::percent) +
+    theme(panel.grid.major.x = element_blank(), panel.grid.minor.x=element_blank(),
+          panel.grid.major.y = element_blank(), panel.grid.minor.y=element_blank(),
+          panel.background=element_rect(fill="white")) +
+    scale_colour_manual(name="",
+                      breaks=c("0","1","2"),
+                      labels=c("Non-Expansion States","Expansion States", "United States"),
+                      values=c("black","grey","blue")) +
+    #scale_x_continuous(expand=c(0,0), limits=c(111.5,116.5),
+     #               breaks=c(112, 112.5, 113, 113.5, 114, 114.5, 115, 115.5, 116), 
+      #              labels=c("Spr '12","Fall '12","Spr '13","Fall '13", "Spr '14", 
+       #                        "Fall '14", "Spr '15", "Fall '15", "Spr '16")) +
+    theme(plot.margin = unit(c(1.5,6,3,2), "lines")) +
+    theme(axis.text.x = element_text(size = 12, angle=-40, vjust = -.1)) +
+    theme(axis.line.x = element_line(size=.75)) +
+    theme(axis.ticks.x = element_line(size=.6))
+
+footnotedeaths <- "Source: Center for Disease Control and Prevention (CDC) estimates of deatths related to opioids\n Expansion states are Alaska, Arizona, Arkansas, California, Colorado, Connecticut,\n Delaware, District, of, Columbia, Hawaii, Illinois, Indiana, Iowa, Kentucky, Louisiana,\n Maryland, Massachusetts, Michigan, Minnesota, Montana, Nevada, New, Hampshire,\n New, Jersey, New, Mexico, New, York, North, Dakota, Ohio, Oregon, Pennsylvania,\n Rhode, Island, Vermont, Washington, West Virginia. Available here: https://wonder.cdc.gov"
+
+gtdeaths <- ggplotGrob(lineplotsdeaths)
+gtdeaths$layout$clip[gtdeaths$layout$name == "panel"] <- "off"
+gtgrobdeaths <- grid.draw(gtdeaths)
+
+
+# Trend line graphs for medicaid recipients 
+## Create Data Frames
+```{r trend lines for recipients_percap}
+
+statelevel5$fipsnum <- as.numeric(as.character(statelevel5$fips))
+
+expanstates <- with(statelevel5, statelevel5[ which(fips == 2|fips == 4|fips == 5|fips == 6|fips == 8|fips == 9|fips == 10|fips == 11|fips == 15|fips == 17|fips == 18|fips == 19|fips == 21|fips == 22|fips == 24|fips == 25|fips == 26|fips == 27|fips == 30|fips == 32|fips == 33|fips == 34|fips == 35|fips == 36|fips == 38|fips == 39|fips == 41|fips == 42|fips == 44|fips == 50|fips == 53|fips == 54), ])
+
+expanstates <- as.data.frame(expanstates)
+
+
+nonexpanstates <- with(statelevel5, statelevel5[ which(fips == 1|fips ==12|fips ==13|fips ==16|fips ==20|fips ==23|fips ==28|fips ==29|fips ==31|fips ==37|fips ==40|fips ==45|fips ==46|fips ==47|fips ==48|fips ==49|fips ==51|fips ==55|fips ==56), ])
+
+nonexpanstates <- as.data.frame(nonexpanstates)
+
+# find averages per year for expansion states and non expansion states and all of the US
+
+aggexpan <- aggregate(expanstates[, 27], list(expanstates$iyear), mean)
+aggexpan$statetype <- rep("Expansion States")
+aggexpan$statetype2 <- rep("ES")
+
+
+aggnonexpan <- aggregate(nonexpanstates[, 27], list(nonexpanstates$iyear), mean)
+aggnonexpan$statetype <- rep("Non-Expansion States")
+aggnonexpan$statetype2 <- rep("NES")
+
+unitedstates <- aggregate(statelevel5[, 27], list(statelevel5$iyear), mean)
+unitedstates$statetype <- rep("United States")
+unitedstates$statetype2 <- rep("US")
+
+# merge two mean datasets together
+
+linegraphs <- rbind(aggexpan, aggnonexpan, unitedstates)
+
+names(linegraphs) <- c("iyear", "averagenumrecippercap", "statetype","statetype2")
+
+```
+
+## Create Line Graphs
+```{r create line graph}
+library(directlabels)
+library(grid)
+
+lineplots <- ggplot(data=na.omit(linegraphs), aes(x=iyear, y=averagenumrecippercap, colour=statetype)) + 
+    #geom_text(family="Times") +
+    #geom_point(size=2) +   
+    geom_ribbon(aes(ymin = averagenumrecippercap - .005, ymax = averagenumrecippercap + .005), fill = "grey") +
+    geom_line(size=1, aes(group=statetype)) + 
+    geom_dl(aes(label = statetype), method = list(dl.trans(x = x + 0.2), "last.points", cex = 0.8)) +
+    geom_dl(aes(label = statetype2), method = list(dl.trans(x = x - 0.2), "first.points", cex = 0.8)) +
+    aes(colour=factor(statetype)) +
+    #ggtitle(unique(x$question.1)) +
+    #theme(plot.title=element_text(margin = margin(-10,1,10,1))) +
+    theme(legend.position="right") + theme(legend.text=element_text(size=10)) +
+    labs(y="Average Medicaid Recipients as a Percent of the Population") + 
+    labs(x="") +
+    #theme(axis.title.y=element_blank()) +
+    #scale_y_continuous(expand=c(0,0),limits=c(0,1), 
+    #                   minor_breaks = seq(.1, 1, .1), breaks=seq(0,1,.1), labels = scales::percent) +
+    theme(panel.grid.major.x = element_blank(), panel.grid.minor.x=element_blank(),
+          panel.grid.major.y = element_blank(), panel.grid.minor.y=element_blank(),
+          panel.background=element_rect(fill="white")) +
+    scale_colour_manual(name="",
+                      breaks=c("0","1","2"),
+                      labels=c("Non-Expansion States","Expansion States", "United States"),
+                      values=c("black","lightgrey","blue")) +
+    #scale_x_continuous(expand=c(0,0), limits=c(111.5,116.5),
+     #               breaks=c(112, 112.5, 113, 113.5, 114, 114.5, 115, 115.5, 116), 
+      #              labels=c("Spr '12","Fall '12","Spr '13","Fall '13", "Spr '14", 
+       #                        "Fall '14", "Spr '15", "Fall '15", "Spr '16")) +
+    theme(plot.margin = unit(c(1.5,6,3,2), "lines")) +
+    theme(axis.text.x = element_text(size = 12, angle=-40, vjust = -.1)) +
+    theme(axis.line.x = element_line(size=.75)) +
+    theme(axis.ticks.x = element_line(size=.6))
+
+footnote <- "Source: Social Security Administration estimates of Medicaid recipient\n counts and Center for Disease Control and Prevention (CDC) estimates of population.\n Expansion states are Alaska, Arizona, Arkansas, California, Colorado, Connecticut,\n Delaware, District, of, Columbia, Hawaii, Illinois, Indiana, Iowa, Kentucky, Louisiana,\n Maryland, Massachusetts, Michigan, Minnesota, Montana, Nevada, New, Hampshire,\n New, Jersey, New, Mexico, New, York, North, Dakota, Ohio, Oregon, Pennsylvania,\n Rhode, Island, Vermont, Washington, West Virginia. Available here:\n https://www.ssa.gov/policy/docs/statcomps/supplement/2016/index.html and here:\n https://wonder.cdc.gov/"
+
+gt <- ggplotGrob(lineplots)
+gt$layout$clip[gt$layout$name == "panel"] <- "off"
+gtgrob <- grid.draw(gt)
+
+```
+
+# Trend graphs for Deaths
+
+
+```{r deaths trend lines}
+
+# find averages per year for expansion states and non expansion states and all of the US
+
+aggexpandeaths <- aggregate(expanstates[, 23], list(expanstates$iyear), mean, na.rm = TRUE, na.action = NULL)
+aggexpandeaths$statetype <- rep("Expansion States")
+aggexpandeaths$statetype2 <- rep("ES")
+
+
+aggnonexpandeaths <- aggregate(nonexpanstates[, 23], list(nonexpanstates$iyear), mean, na.rm = TRUE, na.action = NULL)
+aggnonexpandeaths$statetype <- rep("Non-Expansion States")
+aggnonexpandeaths$statetype2 <- rep("NES")
+
+unitedstatesdeaths <- aggregate(statelevel5[, 23], list(statelevel5$iyear), mean, na.rm = TRUE, na.action = NULL)
+unitedstatesdeaths$statetype <- rep("United States")
+unitedstatesdeaths$statetype2 <- rep("US")
+
+# merge two mean datasets together
+
+linegraphsdeaths <- rbind(aggexpandeaths, aggnonexpandeaths, unitedstatesdeaths)
+
+names(linegraphsdeaths) <- c("iyear", "Deathsnum", "statetype","statetype2")
+
+linegraphsdeaths2 <- linegraphsdeaths[!(linegraphsdeaths$iyear=="2015" | linegraphsdeaths$iyear=="2016"),]
+
+
+```
+
+## Create Line Graphs
+```{r create line graph}
+library(directlabels)
+library(grid)
+
+lineplotsdeaths <- ggplot(data=na.omit(linegraphsdeaths2), aes(x=iyear, y=Deathsnum, colour=statetype)) + 
+    geom_text(family="Times") +
+    #geom_point(size=2) +   
+    geom_ribbon(aes(ymin = Deathsnum - 5, ymax = Deathsnum + 5), fill = "lightgrey") +
+    geom_line(size=1, aes(group=statetype)) + 
+    geom_dl(aes(label = statetype), method = list(dl.trans(x = x + 0.2), "last.points", cex = 0.8)) +
+    geom_dl(aes(label = statetype2), method = list(dl.trans(x = x - 0.2), "first.points", cex = 0.8)) +
+    aes(colour=factor(statetype)) +
+    #ggtitle(unique(x$question.1)) +
+    #theme(plot.title=element_text(margin = margin(-10,1,10,1))) +
+    theme(legend.position="right") + theme(legend.text=element_text(size=10)) +
+    labs(y="Average Deaths Related to Opioids") + 
+    labs(x="") +
+    #theme(axis.title.y=element_blank()) +
+    #scale_y_continuous(expand=c(0,0),limits=c(0,1), 
+    #                   minor_breaks = seq(.1, 1, .1), breaks=seq(0,1,.1), labels = scales::percent) +
+    theme(panel.grid.major.x = element_blank(), panel.grid.minor.x=element_blank(),
+          panel.grid.major.y = element_blank(), panel.grid.minor.y=element_blank(),
+          panel.background=element_rect(fill="white")) +
+    scale_colour_manual(name="",
+                      breaks=c("0","1","2"),
+                      labels=c("Non-Expansion States","Expansion States", "United States"),
+                      values=c("black","grey","blue")) +
+    #scale_x_continuous(expand=c(0,0), limits=c(111.5,116.5),
+     #               breaks=c(112, 112.5, 113, 113.5, 114, 114.5, 115, 115.5, 116), 
+      #              labels=c("Spr '12","Fall '12","Spr '13","Fall '13", "Spr '14", 
+       #                        "Fall '14", "Spr '15", "Fall '15", "Spr '16")) +
+    theme(plot.margin = unit(c(1.5,6,3,2), "lines")) +
+    theme(axis.text.x = element_text(size = 12, angle=-40, vjust = -.1)) +
+    theme(axis.line.x = element_line(size=.75)) +
+    theme(axis.ticks.x = element_line(size=.6))
+
+footnotedeaths <- "Source: Center for Disease Control and Prevention (CDC) estimates of deatths related to opioids\n Expansion states are Alaska, Arizona, Arkansas, California, Colorado, Connecticut,\n Delaware, District, of, Columbia, Hawaii, Illinois, Indiana, Iowa, Kentucky, Louisiana,\n Maryland, Massachusetts, Michigan, Minnesota, Montana, Nevada, New, Hampshire,\n New, Jersey, New, Mexico, New, York, North, Dakota, Ohio, Oregon, Pennsylvania,\n Rhode, Island, Vermont, Washington, West Virginia. Available here: https://wonder.cdc.gov"
+
+gtdeaths <- ggplotGrob(lineplotsdeaths)
+gtdeaths$layout$clip[gtdeaths$layout$name == "panel"] <- "off"
+gtgrobdeaths <- grid.draw(gtdeaths)
+
+```
+
+```{r CIgraphs}
+# Confidence Interval Graphs
+```{r 95% confidence interval trend graphs}
+# regression e4
+
+anes_sub <- subset(statelevel3, iyear >= 2005)
+
+testlm3 <- dlply(anes_sub, .(iyear), function(x) {       
+    lm(Deathsnum ~ numrecipients + expan + Population + unemploy + childrenLT15 + LT9thgrade
+           + X9T12nodiploma + HsgradGED + somecoll + associate + master + profdegree
+           + doctorate)
+})
+
+est_time <- ldply(testlm3, function(x) {
+    c(coef(x)[2], confint(x)[2, ])
+})
+
+names(est_time) <- c("year", "est", "lb", "ub")
+est_time
+```
+
+```
+
