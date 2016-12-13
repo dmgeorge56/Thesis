@@ -1,4 +1,4 @@
-# all code for regression output tables are coded as follows. For specfic code, see regression code:
+# all code for regression output tables are coded with the following syntax. For specfic code, see regression code:
 
 ```{r stargazer all together now, RACE}
 
