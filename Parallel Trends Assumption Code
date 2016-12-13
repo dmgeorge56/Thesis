@@ -76,3 +76,139 @@ stargazer(x1, x2, x3, x4, type="html",  report=('vc*p'), title="x1, x2, x3, x4, 
 
 ```
 
+---
+title: "Parallel Trends Assumption"
+author: "Dana George"
+date: "November 25, 2016"
+output: html_document
+---
+
+# Parallel Trends Assumption How To
+Interact the treatment variable with time dummies. 
+```{r regression 1 million}
+
+# Regression
+statelevel10$fe.year <- factor(statelevel10$iyear)
+statelevel10$fe.fips <- factor(statelevel10$fipsf)
+
+statelevel10$expanf <- factor(statelevel10$expan)
+
+
+statelevel10$iyearref04f <- as.factor(statelevel10$iyear)
+statelevel10$iyearref04 <- relevel(statelevel10$iyearref04f, ref = "2004")
+
+statelevel10$fe.yearref04 <- factor(statelevel10$iyearref04)
+
+# simple regression without controls
+v1 <- lm(Deathsnum ~ numrecipients, data=statelevel10)
+
+# simple regression with controls and fE
+v2 <- plm(Deathsnum ~ numrecipients + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad, data=statelevel10, model="within", index=c("fe.year","fe.fips"))
+
+v3 <- lm(Deathsnum ~ numrecipients + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad + factor(iyear)*factor(expanf), data=statelevel10)
+
+
+
+
+
+
+
+
+# diff in diff - interacting treatment variable with time dummies
+statelevel10$expannum <- as.numeric(statelevel10$expan)
+
+statelevel10$did <- statelevel10$expanstate*statelevel10$expannum
+
+# create year dummies
+statelevel10 <- cbind(statelevel10, dummy(statelevel10$iyear, sep = "_"))
+statelevel10 <- cbind(statelevel10, dummy(statelevel10$expanstate, sep = "_"))
+
+v4 <- lm(Deathsnum ~ did, data=statelevel10)
+
+# ref year = 2003
+v5 <- lm(Deathsnum ~ numrecipients + unemploy + medianincome + medianage + sexratio + percentwhite + percentblack + noHSdegree + hsgrad + collegegrad + statelevel10_1999 + statelevel10_2000 + statelevel10_2001 + statelevel10_2002 + statelevel10_2004 + statelevel10_2005 + statelevel10_2006 + statelevel10_2007 + statelevel10_2008 + statelevel10_2009 + statelevel10_2010 + statelevel10_2011+ statelevel10_2012 + statelevel10_2013 + statelevel10_2014 + statelevel10_2015 + statelevel10_2016 + factor(fips) + did, data=test)
+
+# ref year = 2003
+v6 <- lm(Deathsnum ~ statelevel10_1999 + statelevel10_2000 + statelevel10_2001 + statelevel10_2002 + statelevel10_2004 + statelevel10_2005 + statelevel10_2006 + statelevel10_2007 + statelevel10_2008 + statelevel10_2009 + statelevel10_2010 + statelevel10_2011+ statelevel10_2012 + statelevel10_2013 + statelevel10_2014 + statelevel10_2015 + statelevel10_2016 + factor(fips) + did, data=test)
+
+statelevel10_99T14 <- statelevel10[!(statelevel10$iyear=="2015" | statelevel10$iyear=="2016"),]
+
+# interaction terms for each year
+statelevel10_99T14$did99 <- statelevel10_99T14$statelevel10_1999*statelevel10_99T14$expannum
+statelevel10_99T14$did01 <- statelevel10_99T14$statelevel10_2001*statelevel10_99T14$expannum
+statelevel10_99T14$did02 <- statelevel10_99T14$statelevel10_2002*statelevel10_99T14$expannum
+statelevel10_99T14$did03 <- statelevel10_99T14$statelevel10_2003*statelevel10_99T14$expannum
+statelevel10_99T14$did04 <- statelevel10_99T14$statelevel10_2004*statelevel10_99T14$expannum
+statelevel10_99T14$did05 <- statelevel10_99T14$statelevel10_2005*statelevel10_99T14$expannum
+statelevel10_99T14$did06 <- statelevel10_99T14$statelevel10_2006*statelevel10_99T14$expannum
+statelevel10_99T14$did07 <- statelevel10_99T14$statelevel10_2007*statelevel10_99T14$expannum
+statelevel10_99T14$did08 <- statelevel10_99T14$statelevel10_2008*statelevel10_99T14$expannum
+statelevel10_99T14$did09 <- statelevel10_99T14$statelevel10_2009*statelevel10_99T14$expannum
+statelevel10_99T14$did10 <- statelevel10_99T14$statelevel10_2010*statelevel10_99T14$expannum
+statelevel10_99T14$did11 <- statelevel10_99T14$statelevel10_2011*statelevel10_99T14$expannum
+statelevel10_99T14$did12 <- statelevel10_99T14$statelevel10_2012*statelevel10_99T14$expannum
+statelevel10_99T14$did13 <- statelevel10_99T14$statelevel10_2013*statelevel10_99T14$expannum
+statelevel10_99T14$did14 <- statelevel10_99T14$statelevel10_2014*statelevel10_99T14$expannum
+statelevel10_99T14$did15 <- statelevel10_99T14$statelevel10_2015*statelevel10_99T14$expannum
+statelevel10_99T14$did16 <- statelevel10_99T14$statelevel10_2016*statelevel10_99T14$expannum
+
+# ref year - 2012
+v7 <- lm(Deathsnum ~ did11 + did12 + did14 + statelevel10_2011 + statelevel10_2012 + statelevel10_2014 + factor(fips) + factor(iyear), data=statelevel10_99T14)
+
+
+statelevel10_99T14$diff299 <- statelevel10_99T14$statelevel10_1999*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff200 <- statelevel10_99T14$statelevel10_1999*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff201 <- statelevel10_99T14$statelevel10_2001*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff202 <- statelevel10_99T14$statelevel10_2002*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff203 <- statelevel10_99T14$statelevel10_2003*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff204 <- statelevel10_99T14$statelevel10_2004*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff205 <- statelevel10_99T14$statelevel10_2005*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff206 <- statelevel10_99T14$statelevel10_2006*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff207 <- statelevel10_99T14$statelevel10_2007*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff208 <- statelevel10_99T14$statelevel10_2008*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff209 <- statelevel10_99T14$statelevel10_2009*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff210 <- statelevel10_99T14$statelevel10_2010*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff211 <- statelevel10_99T14$statelevel10_2011*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff212 <- statelevel10_99T14$statelevel10_2012*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff213 <- statelevel10_99T14$statelevel10_2013*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff214 <- statelevel10_99T14$statelevel10_2014*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff215 <- statelevel10_99T14$statelevel10_2015*statelevel10_99T14$statelevel10_1
+statelevel10_99T14$diff216 <- statelevel10_99T14$statelevel10_2016*statelevel10_99T14$statelevel10_1
+
+# ref year = 2003
+v8 <- lm(Deathsnum ~ expanstate + statelevel10_1999 + statelevel10_2000 + statelevel10_2001 + statelevel10_2002 + statelevel10_2004 + statelevel10_2005 + statelevel10_2006 + statelevel10_2007 + statelevel10_2008 + statelevel10_2009 + statelevel10_2010 + statelevel10_2011+ statelevel10_2012 + statelevel10_2013 + statelevel10_2014 + diff299 + diff200 + diff201 + diff202 + diff204 + diff205 + diff206 + diff207 + diff208 + diff209 + diff210 + diff211 + diff212 + diff213 + diff214, data=statelevel10_99T14)
+
+dummydfcut <- read.csv("P:\\Thesis\\dummydfcut.csv")
+
+dummydfcut$statelevel10_2015 <- NULL
+dummydfcut$statelevel10_2016 <- NULL
+
+dummydfcut$fe.iyear <- factor(dummydfcut$iyear)
+dummydfcut$fe.fips <- factor(dummydfcut$fips)
+
+v9 <- lm(Deathsnum ~ statelevel10_1 + statelevel10_1999 + statelevel10_2000 + statelevel10_2001 + statelevel10_2002 + statelevel10_2004 + statelevel10_2005 + statelevel10_2006 + statelevel10_2007 + statelevel10_2008 + statelevel10_2009 + statelevel10_2010 + statelevel10_2011+ statelevel10_2012 + statelevel10_2013 + statelevel10_2014 + diff299 + diff200 + diff201 + diff202 + diff204 + diff205 + diff206 + diff207 + diff208 + diff209 + diff210 + diff211 + diff212 + diff213 + diff214, data=dummydfcut), model="within", index=c("fe.iyear","fe.fips"))
+```
+
+
+```{r state specific linear time trends}
+
+# create trend variable
+statelevel10.1 <- statelevel10[!(statelevel10$iyear=="2015" | statelevel10$iyear=="2016"),]
+
+# create state indicator variables
+statelevel10.1 <- cbind(statelevel10.1, dummy(statelevel10.1$state.x, sep = "_"))
+
+# reshape by year
+statelevel10.12 <- with(statelevel10.1, statelevel10.1[order(trend),])
+
+# create interaction terms for each state*trend
+statelevel10.12$alabtrend <- with(statelevel10.12, statelevel10.1_Alabama*trend)
+
+
+statelevel10.1$trend <- with(statelevel10, ifelse(iyear==1999, 1, ifelse(iyear==2000, 2, ifelse(iyear==2001, 3, ifelse(iyear==2002, 4,ifelse(iyear==2003, 5,ifelse(iyear==2004, 6,ifelse(iyear==2005, 7,ifelse(iyear==2006, 8,ifelse(iyear==2007, 9,ifelse(iyear==2008, 10,ifelse(iyear==2009, 11,ifelse(iyear==2010, 12,ifelse(iyear==2011, 13,ifelse(iyear==2012, 14,ifelse(iyear==2013, 15,ifelse(iyear==2014, 16, NA)))))))))))))))))
+
+w1 <- lm(Deathsnum ~ expan + , data=statelevel10)
+
+```
+
+
