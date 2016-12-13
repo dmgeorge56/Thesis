@@ -12,8 +12,33 @@
 
 #      1. BRFFS and Enrollment                                                                     #
 
-#      2. CDC and Enrollment and Recipients/Spending                                               #
+```{r brfss}
 
-#      3. Unemployment data                                                                        #
+# load data
 
-#      4. Other demographic data for controls                                                      #
+load("P:\\Thesis\\loaded.dum_BRFSS_WITH_DUMMYS")
+load("P:\\Thesis\\cdc_enroll.rdata")
+
+
+# rename to be ready to merge
+
+names(loaded.dum)[names(loaded.dum)=="x.state"] <- "fips"
+names(enroll)[names(enroll)=="year"] <- "iyear"
+names(enroll)[names(enroll)=="state"] <- "x.state"
+
+# merge dataframes
+
+brfssANDenroll <- merge(loaded.dum, enroll, by=c("fips", "iyear"), all=TRUE)
+save(brfssANDenroll, file="P:\\Thesis\\brfssANDenroll.rdata")
+
+load("P:\\Thesis\\brfssANDenroll.rdata")
+
+brfssANDenroll <- as.data.frame(brfssANDenroll)
+
+#      2. CDC and Enrollment and Recipients/Spending and Unemployment and Controls (excel file)      #
+
+```{r load data}
+
+load("P:\\Thesis\\statelevel9.rdata")
+
+```
